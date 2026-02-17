@@ -1,0 +1,6 @@
+name: Mindex
+version: '${version}'
+main: com.jeongns.mindex.MindexPlugin
+description: 마인크래프트 도감 플러그인
+author: Jeongns
+api-version: '1.21.11'
