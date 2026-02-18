@@ -8,12 +8,12 @@ import lombok.AllArgsConstructor;
 import org.bukkit.plugin.java.JavaPlugin;
 
 @AllArgsConstructor
-public final class TestCommandHandler implements CommandHandler {
-    private final JavaPlugin plugin;
+public final class RootCommandHandler implements CommandHandler {
+    private JavaPlugin plugin;
 
     @Override
-    public LiteralArgumentBuilder<CommandSourceStack> createSubcommand() {
-        return Commands.literal("test")
+    public LiteralArgumentBuilder<CommandSourceStack> createCommand() {
+        return Commands.literal("mindex")
                 .executes(ctx -> {
                     execute(ctx.getSource(), new String[0]);
                     return Command.SINGLE_SUCCESS;
@@ -22,7 +22,6 @@ public final class TestCommandHandler implements CommandHandler {
 
     @Override
     public void execute(CommandSourceStack source, String[] args) {
-        plugin.getLogger().info("[Command] /mindex test executed by " + source.getSender().getName());
-        source.getSender().sendPlainMessage("mindex test command executed.");
+        source.getSender().sendPlainMessage("마인크래프트 도감 플러그인 Mindex");
     }
 }
