@@ -1,4 +1,4 @@
-package com.jeongns.mindex.repository;
+package com.jeongns.mindex.player.repository;
 
 import com.jeongns.mindex.player.entity.PlayerMindexState;
 
