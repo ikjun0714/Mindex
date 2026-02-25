@@ -2,6 +2,7 @@ package com.jeongns.mindex.catalog.loader;
 
 import com.jeongns.mindex.catalog.entity.MindexCategory;
 import com.jeongns.mindex.catalog.entity.MindexEntry;
+import com.jeongns.mindex.catalog.entity.UnlockType;
 import com.jeongns.mindex.config.validation.ConfigValueValidator;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
@@ -9,8 +10,11 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @AllArgsConstructor
@@ -25,9 +29,12 @@ public class CatalogConfigLoader {
         plugin.saveDefaultConfig();
         plugin.reloadConfig();
 
-        return plugin.getConfig().getMapList(CATEGORY_LIST_PATH).stream()
+        List<MindexCategory> categories = plugin.getConfig().getMapList(CATEGORY_LIST_PATH).stream()
                 .map(this::toCategory)
                 .collect(Collectors.toList());
+
+        validateUniqueEntryIds(categories);
+        return categories;
     }
 
     private MindexCategory toCategory(@NonNull Map<?, ?> row) {
@@ -37,7 +44,7 @@ public class CatalogConfigLoader {
         String categoryReward = ConfigValueValidator.optionalString(valueAsString(row.get("reward")), "");
 
         ensureCategoryFile(categoryFilePath);
-        List<MindexEntry> entries = loadEntries(categoryFilePath);
+        List<MindexEntry> entries = loadEntries(categoryId, categoryFilePath);
 
         return new MindexCategory(categoryId, categoryName, categoryReward, entries);
     }
@@ -49,25 +56,46 @@ public class CatalogConfigLoader {
         }
     }
 
-    private List<MindexEntry> loadEntries(@NonNull String categoryFilePath) {
+    private List<MindexEntry> loadEntries(@NonNull String categoryId, @NonNull String categoryFilePath) {
         File categoryFile = new File(plugin.getDataFolder(), categoryFilePath);
         YamlConfiguration categoryConfig = YamlConfiguration.loadConfiguration(categoryFile);
 
         return categoryConfig.getMapList(ENTRY_LIST_PATH).stream()
-                .map(this::toEntry)
+                .map(row -> toEntry(categoryId, row))
                 .collect(Collectors.toList());
     }
 
-    private MindexEntry toEntry(@NonNull Map<?, ?> row) {
+    private MindexEntry toEntry(@NonNull String categoryId, @NonNull Map<?, ?> row) {
+        String materialName = ConfigValueValidator.requireString(valueAsString(row.get("material")), "entries.material");
+        var material = ConfigValueValidator.parseMaterial(materialName);
+        String configuredId = ConfigValueValidator.optionalString(valueAsString(row.get("id")), "");
+        String entryId = configuredId.isEmpty() ? categoryId + "." + material.name() : configuredId;
+
         return new MindexEntry(
-                ConfigValueValidator.requireString(valueAsString(row.get("id")), "entries.id"),
+                entryId,
+                UnlockType.fromConfig(
+                        ConfigValueValidator.requireString(
+                                valueAsString(row.get("unlockType")),
+                                "entries.unlockType"
+                        )
+                ),
                 ConfigValueValidator.requireString(valueAsString(row.get("name")), "entries.name"),
                 ConfigValueValidator.requireString(valueAsString(row.get("description")), "entries.description"),
-                ConfigValueValidator.parseMaterial(
-                        ConfigValueValidator.requireString(valueAsString(row.get("material")), "entries.material")
-                ),
+                material,
                 ConfigValueValidator.optionalString(valueAsString(row.get("reward")), "")
         );
+    }
+
+    private void validateUniqueEntryIds(@NonNull List<MindexCategory> categories) {
+        Set<String> seen = new HashSet<>();
+        for (MindexCategory category : categories) {
+            for (MindexEntry entry : category.getEntries()) {
+                String normalized = entry.getId().toLowerCase(Locale.ROOT);
+                if (!seen.add(normalized)) {
+                    throw new IllegalArgumentException("중복 entries.id 발견: " + entry.getId());
+                }
+            }
+        }
     }
 
     private String valueAsString(Object value) {

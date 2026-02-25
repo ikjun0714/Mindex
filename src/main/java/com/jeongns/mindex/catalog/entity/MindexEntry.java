@@ -11,6 +11,8 @@ public final class MindexEntry {
     @NonNull
     private String id;
     @NonNull
+    private UnlockType unlockType;
+    @NonNull
     private String name;
     @NonNull
     private String description;
