@@ -7,6 +7,8 @@ import com.jeongns.mindex.gui.entity.GuiModel;
 import com.jeongns.mindex.gui.entity.model.CategorySymbol;
 import com.jeongns.mindex.gui.entity.model.DefaultSymbol;
 import com.jeongns.mindex.gui.entity.model.GuiView;
+import com.jeongns.mindex.service.registration.RegistrationService;
+import com.jeongns.mindex.service.registration.RegistrationStatus;
 import lombok.NonNull;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
@@ -25,6 +27,7 @@ public final class MindexGui implements InventoryHolder {
     private final UUID ownerUuid;
     private final MindexCatalog catalog;
     private final GuiModel guiModel;
+    private final RegistrationService registrationService;
     private final Map<Integer, GuiAction> slotActions;
     private Inventory inventory;
     private int page;
@@ -34,11 +37,13 @@ public final class MindexGui implements InventoryHolder {
     public MindexGui(
             @NonNull UUID ownerUuid,
             @NonNull MindexCatalog catalog,
-            @NonNull GuiModel guiModel
+            @NonNull GuiModel guiModel,
+            @NonNull RegistrationService registrationService
     ) {
         this.ownerUuid = ownerUuid;
         this.catalog = catalog;
         this.guiModel = guiModel;
+        this.registrationService = registrationService;
         this.slotActions = new HashMap<>();
         this.page = 0;
         this.maxPage = 1;
@@ -56,6 +61,9 @@ public final class MindexGui implements InventoryHolder {
     }
 
     public void handleClick(@NonNull Player player, int rawSlot, @NonNull ClickType clickType) {
+        if (!clickType.isLeftClick() && !clickType.isRightClick()) {
+            return;
+        }
         if (!ownerUuid.equals(player.getUniqueId())) {
             return;
         }
@@ -73,6 +81,7 @@ public final class MindexGui implements InventoryHolder {
             case PREV_PAGE -> movePreviousPage();
             case OPEN_DEFAULT -> openDefaultCategory();
             case OPEN_CATEGORY -> openCategory(action.categoryId());
+            case REGISTER_ENTRY -> registerEntry(player, action.entryId());
         };
 
         if (!changed) {
@@ -162,6 +171,7 @@ public final class MindexGui implements InventoryHolder {
         for (int i = start; i < end; i++) {
             MindexEntry entry = entries.get(i);
             int slot = slots.get(targetIndex++);
+            slotActions.put(slot, GuiAction.registerEntry(entry.getId()));
             inventory.setItem(slot, createItem(
                     entry.getItem(),
                     entry.getName(),
@@ -240,15 +250,15 @@ public final class MindexGui implements InventoryHolder {
 
     private void registerDefaultAction(int slot, @NonNull String role) {
         if ("NEXT_PAGE".equalsIgnoreCase(role)) {
-            slotActions.put(slot, new GuiAction(ActionType.NEXT_PAGE, null));
+            slotActions.put(slot, GuiAction.nextPage());
             return;
         }
         if ("PREV_PAGE".equalsIgnoreCase(role)) {
-            slotActions.put(slot, new GuiAction(ActionType.PREV_PAGE, null));
+            slotActions.put(slot, GuiAction.prevPage());
             return;
         }
         if ("OPEN_DEFAULT".equalsIgnoreCase(role)) {
-            slotActions.put(slot, new GuiAction(ActionType.OPEN_DEFAULT, null));
+            slotActions.put(slot, GuiAction.openDefault());
         }
     }
 
@@ -256,7 +266,7 @@ public final class MindexGui implements InventoryHolder {
         if (!"CATEGORY_BUTTON".equalsIgnoreCase(categorySymbol.getRole())) {
             return;
         }
-        slotActions.put(slot, new GuiAction(ActionType.OPEN_CATEGORY, categorySymbol.getCategoryId()));
+        slotActions.put(slot, GuiAction.openCategory(categorySymbol.getCategoryId()));
     }
 
     private boolean moveNextPage() {
@@ -286,6 +296,36 @@ public final class MindexGui implements InventoryHolder {
             return false;
         }
         return changeCategory(categoryId);
+    }
+
+    private boolean registerEntry(@NonNull Player player, String entryId) {
+        if (entryId == null || entryId.isBlank()) {
+            return false;
+        }
+
+        RegistrationStatus status = registrationService.register(player, entryId);
+        return switch (status) {
+            case SUCCESS -> {
+                player.sendMessage(colorize("&a도감이 등록되었습니다: " + entryId));
+                yield true;
+            }
+            case ALREADY_REGISTERED -> {
+                player.sendMessage(colorize("&e이미 등록된 도감입니다."));
+                yield false;
+            }
+            case REQUIREMENT_NOT_MET -> {
+                player.sendMessage(colorize("&c등록 조건을 만족하지 못했습니다."));
+                yield false;
+            }
+            case ENTRY_NOT_FOUND -> {
+                player.sendMessage(colorize("&c존재하지 않는 도감 엔트리입니다."));
+                yield false;
+            }
+            case UNSUPPORTED_UNLOCK_TYPE -> {
+                player.sendMessage(colorize("&c지원하지 않는 등록 타입입니다."));
+                yield false;
+            }
+        };
     }
 
     private boolean changeCategory(@NonNull String nextCategoryId) {

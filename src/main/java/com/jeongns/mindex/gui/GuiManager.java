@@ -6,6 +6,7 @@ import com.jeongns.mindex.gui.listener.MindexGuiListener;
 import com.jeongns.mindex.gui.loader.GuiConfigLoader;
 import com.jeongns.mindex.gui.view.MindexGui;
 import com.jeongns.mindex.manager.Manager;
+import com.jeongns.mindex.service.registration.RegistrationService;
 import lombok.Getter;
 import lombok.NonNull;
 import org.bukkit.entity.Player;
@@ -18,6 +19,8 @@ public class GuiManager implements Manager {
     @NonNull
     private final CatalogManager catalogManager;
     @NonNull
+    private final RegistrationService registrationService;
+    @NonNull
     private final GuiConfigLoader configLoader;
     @NonNull
     private final MindexGuiListener listener;
@@ -26,9 +29,14 @@ public class GuiManager implements Manager {
     @NonNull
     private GuiModel guiModel;
 
-    public GuiManager(@NonNull JavaPlugin plugin, @NonNull CatalogManager catalogManager) {
+    public GuiManager(
+            @NonNull JavaPlugin plugin,
+            @NonNull CatalogManager catalogManager,
+            @NonNull RegistrationService registrationService
+    ) {
         this.plugin = plugin;
         this.catalogManager = catalogManager;
+        this.registrationService = registrationService;
         this.configLoader = new GuiConfigLoader(plugin);
         this.listener = new MindexGuiListener(this);
         this.guiModel = GuiModel.empty();
@@ -50,11 +58,11 @@ public class GuiManager implements Manager {
     }
 
     public void openDefault(@NonNull Player player) {
-        new MindexGui(player.getUniqueId(), catalogManager.getCatalog(), guiModel).open(player);
+        new MindexGui(player.getUniqueId(), catalogManager.getCatalog(), guiModel, registrationService).open(player);
     }
 
     public void openCategory(@NonNull Player player, @NonNull String categoryId) {
-        MindexGui gui = new MindexGui(player.getUniqueId(), catalogManager.getCatalog(), guiModel);
+        MindexGui gui = new MindexGui(player.getUniqueId(), catalogManager.getCatalog(), guiModel, registrationService);
         gui.setCategory(categoryId);
         gui.open(player);
     }

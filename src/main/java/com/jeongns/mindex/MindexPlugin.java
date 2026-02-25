@@ -4,22 +4,37 @@ import com.jeongns.mindex.catalog.CatalogManager;
 import com.jeongns.mindex.catalog.loader.CatalogConfigLoader;
 import com.jeongns.mindex.command.CommandManager;
 import com.jeongns.mindex.gui.GuiManager;
+import com.jeongns.mindex.player.PlayerStateManager;
+import com.jeongns.mindex.player.repository.InMemoryPlayerStateRepository;
+import com.jeongns.mindex.service.registration.RegistrationService;
+import com.jeongns.mindex.service.reward.RewardExecutor;
 import lombok.Getter;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class MindexPlugin extends JavaPlugin {
     private CatalogManager catalogManager;
     @Getter
+    private PlayerStateManager playerStateManager;
+    @Getter
     private GuiManager guiManager;
+    @Getter
+    private RegistrationService registrationService;
     private CommandManager commandManager;
 
     @Override
     public void onEnable() {
         this.catalogManager = new CatalogManager(new CatalogConfigLoader(this));
-        this.guiManager = new GuiManager(this, catalogManager);
+        this.playerStateManager = new PlayerStateManager(new InMemoryPlayerStateRepository());
+        this.registrationService = new RegistrationService(
+                catalogManager,
+                playerStateManager,
+                new RewardExecutor(this)
+        );
+        this.guiManager = new GuiManager(this, catalogManager, registrationService);
         this.commandManager = new CommandManager(this);
 
         this.catalogManager.initialize();
+        this.playerStateManager.initialize();
         this.guiManager.initialize();
         this.commandManager.initialize();
 
@@ -30,6 +45,9 @@ public final class MindexPlugin extends JavaPlugin {
     public void onDisable() {
         if (catalogManager != null) {
             catalogManager.shutdown();
+        }
+        if (playerStateManager != null) {
+            playerStateManager.shutdown();
         }
         if (guiManager != null) {
             guiManager.shutdown();
