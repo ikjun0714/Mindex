@@ -1,7 +1,7 @@
-package com.jeongns.mindex.gui.listener;
+package com.jeongns.mindex.listener.handler;
 
-import com.jeongns.mindex.gui.GuiManager;
-import com.jeongns.mindex.gui.view.MindexGui;
+import com.jeongns.mindex.mindexGui.MindexGuiManager;
+import com.jeongns.mindex.mindexGui.gui.MindexCatalogGui;
 import lombok.NonNull;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -13,26 +13,26 @@ import org.bukkit.event.inventory.InventoryOpenEvent;
 
 public final class MindexGuiListener implements Listener {
     @NonNull
-    private final GuiManager guiManager;
+    private final MindexGuiManager mindexGuiManager;
 
-    public MindexGuiListener(@NonNull GuiManager guiManager) {
-        this.guiManager = guiManager;
+    public MindexGuiListener(@NonNull MindexGuiManager mindexGuiManager) {
+        this.mindexGuiManager = mindexGuiManager;
     }
 
     @EventHandler
     public void onInventoryOpen(InventoryOpenEvent event) {
-        if (!(event.getInventory().getHolder() instanceof MindexGui mindexGui)) {
+        if (!(event.getInventory().getHolder() instanceof MindexCatalogGui mindexGui)) {
             return;
         }
         if (!(event.getPlayer() instanceof Player player)) {
             return;
         }
-        guiManager.handleOpen(player, mindexGui);
+        mindexGuiManager.handleOpen(player, mindexGui);
     }
 
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
-        if (!(event.getView().getTopInventory().getHolder() instanceof MindexGui mindexGui)) {
+        if (!(event.getView().getTopInventory().getHolder() instanceof MindexCatalogGui mindexGui)) {
             return;
         }
         if (!(event.getWhoClicked() instanceof Player player)) {
@@ -41,17 +41,17 @@ public final class MindexGuiListener implements Listener {
 
         event.setCancelled(true);
         ClickType clickType = event.getClick();
-        guiManager.handleTopInventoryClick(player, mindexGui, event.getRawSlot(), clickType);
+        mindexGuiManager.handleTopInventoryClick(player, mindexGui, event.getRawSlot(), clickType);
     }
 
     @EventHandler
     public void onInventoryClose(InventoryCloseEvent event) {
-        if (!(event.getInventory().getHolder() instanceof MindexGui mindexGui)) {
+        if (!(event.getInventory().getHolder() instanceof MindexCatalogGui mindexGui)) {
             return;
         }
         if (!(event.getPlayer() instanceof Player player)) {
             return;
         }
-        guiManager.handleClose(player, mindexGui);
+        mindexGuiManager.handleClose(player, mindexGui);
     }
 }

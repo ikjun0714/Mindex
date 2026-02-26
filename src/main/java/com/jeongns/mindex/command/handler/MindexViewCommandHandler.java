@@ -31,13 +31,13 @@ public final class MindexViewCommandHandler implements CommandHandler {
             return;
         }
 
-        if (!(plugin instanceof MindexPlugin mindexPlugin) || mindexPlugin.getGuiManager() == null) {
+        if (!(plugin instanceof MindexPlugin mindexPlugin) || mindexPlugin.getMindexGuiManager() == null) {
             source.getSender().sendPlainMessage("GUI 매니저가 초기화되지 않았습니다.");
             plugin.getLogger().warning("[Command] /mindex view failed: GuiManager not initialized");
             return;
         }
 
-        mindexPlugin.getGuiManager().openDefault(player);
+        mindexPlugin.getMindexGuiManager().openDefault(player);
         plugin.getLogger().info("[Command] /mindex view opened for " + player.getName());
     }
 }

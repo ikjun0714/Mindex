@@ -3,7 +3,8 @@ package com.jeongns.mindex;
 import com.jeongns.mindex.catalog.CatalogManager;
 import com.jeongns.mindex.catalog.loader.CatalogConfigLoader;
 import com.jeongns.mindex.command.CommandManager;
-import com.jeongns.mindex.gui.GuiManager;
+import com.jeongns.mindex.mindexGui.MindexGuiManager;
+import com.jeongns.mindex.listener.ListenerManager;
 import com.jeongns.mindex.player.PlayerStateManager;
 import com.jeongns.mindex.player.repository.InMemoryPlayerStateRepository;
 import com.jeongns.mindex.service.registration.RegistrationService;
@@ -16,7 +17,8 @@ public final class MindexPlugin extends JavaPlugin {
     @Getter
     private PlayerStateManager playerStateManager;
     @Getter
-    private GuiManager guiManager;
+    private MindexGuiManager mindexGuiManager;
+    private ListenerManager listenerManager;
     @Getter
     private RegistrationService registrationService;
     private CommandManager commandManager;
@@ -30,12 +32,14 @@ public final class MindexPlugin extends JavaPlugin {
                 playerStateManager,
                 new RewardExecutor(this)
         );
-        this.guiManager = new GuiManager(this, catalogManager, registrationService);
+        this.mindexGuiManager = new MindexGuiManager(this, catalogManager, registrationService);
+        this.listenerManager = new ListenerManager(this, mindexGuiManager);
         this.commandManager = new CommandManager(this);
 
         this.catalogManager.initialize();
         this.playerStateManager.initialize();
-        this.guiManager.initialize();
+        this.mindexGuiManager.initialize();
+        this.listenerManager.initialize();
         this.commandManager.initialize();
 
         getLogger().info("Mindex 플러그인이 시작되었습니다.");
@@ -49,8 +53,11 @@ public final class MindexPlugin extends JavaPlugin {
         if (playerStateManager != null) {
             playerStateManager.shutdown();
         }
-        if (guiManager != null) {
-            guiManager.shutdown();
+        if (mindexGuiManager != null) {
+            mindexGuiManager.shutdown();
+        }
+        if (listenerManager != null) {
+            listenerManager.shutdown();
         }
         commandManager.shutdown();
 
