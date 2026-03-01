@@ -54,6 +54,6 @@ public class RegistrationService {
 
     private boolean canRegister(@NonNull Player player, @NonNull MindexEntry entry) {
         ItemStack required = new ItemStack(entry.getItem(), 1);
-        return player.getInventory().containsAtLeast(required, 1);
+        return player.getInventory().containsAtLeast(required, entry.getAmount());
     }
 }
