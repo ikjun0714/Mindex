@@ -18,6 +18,7 @@ public final class MindexEntry {
     private final String description;
     @NonNull
     private final Material item;
+    private final Integer customModelData;
     private final int amount;
     @NonNull
     private final String reward;

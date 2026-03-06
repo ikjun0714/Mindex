@@ -8,6 +8,7 @@ import com.jeongns.mindex.service.reward.RewardExecutor;
 import lombok.NonNull;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.Optional;
 
@@ -53,7 +54,33 @@ public class RegistrationService {
     }
 
     private boolean canRegister(@NonNull Player player, @NonNull MindexEntry entry) {
-        ItemStack required = new ItemStack(entry.getItem(), 1);
-        return player.getInventory().containsAtLeast(required, entry.getAmount());
+        int matchedAmount = 0;
+        for (ItemStack itemStack : player.getInventory().getContents()) {
+            if (!matchesEntry(itemStack, entry)) {
+                continue;
+            }
+
+            matchedAmount += itemStack.getAmount();
+            if (matchedAmount >= entry.getAmount()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean matchesEntry(ItemStack itemStack, @NonNull MindexEntry entry) {
+        if (itemStack == null || itemStack.getType() != entry.getItem()) {
+            return false;
+        }
+
+        Integer requiredCustomModelData = entry.getCustomModelData();
+        if (requiredCustomModelData == null) {
+            return true;
+        }
+
+        ItemMeta itemMeta = itemStack.getItemMeta();
+        return itemMeta != null
+                && itemMeta.hasCustomModelData()
+                && itemMeta.getCustomModelData() == requiredCustomModelData;
     }
 }

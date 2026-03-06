@@ -1,6 +1,7 @@
 entries:
   - id: mining.coal
     unlockType: ITEM
+    customModelData: 1001
     amount: 16
     name: "석탄"
     description: "석탄 광석을 채굴했다."
