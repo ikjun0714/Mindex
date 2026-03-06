@@ -24,7 +24,7 @@ public class PlayerStateManager implements Manager {
 
     public PlayerMindexState getOrCreate(@NonNull UUID playerId) {
         return repository.findByPlayerId(playerId).orElseGet(() -> {
-            PlayerMindexState initialState = new PlayerMindexState(playerId, new HashSet<>());
+            PlayerMindexState initialState = new PlayerMindexState(playerId, new HashSet<>(), new HashSet<>());
             repository.save(initialState);
             return initialState;
         });
@@ -39,6 +39,17 @@ public class PlayerStateManager implements Manager {
 
     public boolean isUnlocked(@NonNull UUID playerId, @NonNull String entryId) {
         return getOrCreate(playerId).isUnlocked(entryId);
+    }
+
+    public boolean hasClaimedCategoryReward(@NonNull UUID playerId, @NonNull String categoryId) {
+        return getOrCreate(playerId).hasClaimedCategoryReward(categoryId);
+    }
+
+    public boolean claimCategoryReward(@NonNull UUID playerId, @NonNull String categoryId) {
+        PlayerMindexState playerState = getOrCreate(playerId);
+        boolean claimed = playerState.claimCategoryReward(categoryId);
+        repository.save(playerState);
+        return claimed;
     }
 
     public void save(@NonNull UUID playerId) {

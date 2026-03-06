@@ -8,6 +8,7 @@ import com.jeongns.mindex.listener.ListenerManager;
 import com.jeongns.mindex.player.PlayerStateManager;
 import com.jeongns.mindex.player.repository.InMemoryPlayerStateRepository;
 import com.jeongns.mindex.service.registration.RegistrationService;
+import com.jeongns.mindex.service.reward.CategoryRewardService;
 import com.jeongns.mindex.service.reward.RewardExecutor;
 import lombok.Getter;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -21,18 +22,28 @@ public final class MindexPlugin extends JavaPlugin {
     private ListenerManager listenerManager;
     @Getter
     private RegistrationService registrationService;
+    @Getter
+    private CategoryRewardService categoryRewardService;
     private CommandManager commandManager;
 
     @Override
     public void onEnable() {
         this.catalogManager = new CatalogManager(new CatalogConfigLoader(this));
         this.playerStateManager = new PlayerStateManager(new InMemoryPlayerStateRepository());
+        RewardExecutor rewardExecutor = new RewardExecutor(this);
         this.registrationService = new RegistrationService(
                 catalogManager,
                 playerStateManager,
-                new RewardExecutor(this)
+                rewardExecutor
         );
-        this.mindexGuiManager = new MindexGuiManager(this, catalogManager, playerStateManager, registrationService);
+        this.categoryRewardService = new CategoryRewardService(catalogManager, playerStateManager, rewardExecutor);
+        this.mindexGuiManager = new MindexGuiManager(
+                this,
+                catalogManager,
+                playerStateManager,
+                registrationService,
+                categoryRewardService
+        );
         this.listenerManager = new ListenerManager(this, mindexGuiManager);
         this.commandManager = new CommandManager(this);
 

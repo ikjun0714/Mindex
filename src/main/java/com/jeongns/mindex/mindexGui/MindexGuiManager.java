@@ -10,6 +10,7 @@ import com.jeongns.mindex.mindexGui.model.LockedEntryDisplay;
 import com.jeongns.mindex.mindexGui.view.MindexCatalogGui;
 import com.jeongns.mindex.player.PlayerStateManager;
 import com.jeongns.mindex.service.registration.RegistrationService;
+import com.jeongns.mindex.service.reward.CategoryRewardService;
 import lombok.Getter;
 import lombok.NonNull;
 import org.bukkit.entity.Player;
@@ -25,6 +26,8 @@ public class MindexGuiManager implements Manager {
     private final PlayerStateManager playerStateManager;
     @NonNull
     private final RegistrationService registrationService;
+    @NonNull
+    private final CategoryRewardService categoryRewardService;
     @NonNull
     private final GuiConfigLoader configLoader;
 
@@ -42,12 +45,14 @@ public class MindexGuiManager implements Manager {
             @NonNull JavaPlugin plugin,
             @NonNull CatalogManager catalogManager,
             @NonNull PlayerStateManager playerStateManager,
-            @NonNull RegistrationService registrationService
+            @NonNull RegistrationService registrationService,
+            @NonNull CategoryRewardService categoryRewardService
     ) {
         this.plugin = plugin;
         this.catalogManager = catalogManager;
         this.playerStateManager = playerStateManager;
         this.registrationService = registrationService;
+        this.categoryRewardService = categoryRewardService;
         this.configLoader = new GuiConfigLoader(plugin);
         this.guiModel = GuiModel.empty();
         this.lockedEntryDisplay = LockedEntryDisplay.defaultValue();
@@ -90,7 +95,8 @@ public class MindexGuiManager implements Manager {
                 lockedEntryDisplay,
                 guiSoundSettings,
                 playerStateManager,
-                registrationService
+                registrationService,
+                categoryRewardService
         ).open(player);
     }
 
@@ -102,7 +108,8 @@ public class MindexGuiManager implements Manager {
                 lockedEntryDisplay,
                 guiSoundSettings,
                 playerStateManager,
-                registrationService
+                registrationService,
+                categoryRewardService
         );
         gui.setCategory(categoryId);
         gui.open(player);

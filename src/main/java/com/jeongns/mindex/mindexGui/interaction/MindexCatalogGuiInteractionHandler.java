@@ -6,6 +6,8 @@ import com.jeongns.mindex.mindexGui.model.GuiSoundSettings;
 import com.jeongns.mindex.mindexGui.view.MindexCatalogGui;
 import com.jeongns.mindex.service.registration.RegistrationService;
 import com.jeongns.mindex.service.registration.RegistrationStatus;
+import com.jeongns.mindex.service.reward.CategoryRewardService;
+import com.jeongns.mindex.service.reward.CategoryRewardStatus;
 import lombok.NonNull;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -15,13 +17,17 @@ public final class MindexCatalogGuiInteractionHandler {
     @NonNull
     private final RegistrationService registrationService;
     @NonNull
+    private final CategoryRewardService categoryRewardService;
+    @NonNull
     private final GuiSoundSettings guiSoundSettings;
 
     public MindexCatalogGuiInteractionHandler(
             @NonNull RegistrationService registrationService,
+            @NonNull CategoryRewardService categoryRewardService,
             @NonNull GuiSoundSettings guiSoundSettings
     ) {
         this.registrationService = registrationService;
+        this.categoryRewardService = categoryRewardService;
         this.guiSoundSettings = guiSoundSettings;
     }
 
@@ -52,10 +58,12 @@ public final class MindexCatalogGuiInteractionHandler {
             case OPEN_DEFAULT -> gui.openDefaultCategory();
             case OPEN_CATEGORY -> gui.openCategory(action.categoryId());
             case REGISTER_ENTRY -> registerEntry(gui, player, action.entryId());
-            case CLAIM_CATEGORY_REWARD -> claimCategoryReward(player);
+            case CLAIM_CATEGORY_REWARD -> claimCategoryReward(gui, player);
         };
 
-        if (changed && action.type() != com.jeongns.mindex.mindexGui.action.ActionType.REGISTER_ENTRY) {
+        if (changed
+                && action.type() != com.jeongns.mindex.mindexGui.action.ActionType.REGISTER_ENTRY
+                && action.type() != com.jeongns.mindex.mindexGui.action.ActionType.CLAIM_CATEGORY_REWARD) {
             playSound(player, guiSoundSettings.getMenuSelect());
         }
         return changed;
@@ -97,10 +105,37 @@ public final class MindexCatalogGuiInteractionHandler {
         };
     }
 
-    private boolean claimCategoryReward(@NonNull Player player) {
-        playSound(player, guiSoundSettings.getRegistrationFail());
-        player.sendMessage(colorize("&e카테고리 완료 보상 수령은 아직 구현되지 않았습니다."));
-        return false;
+    private boolean claimCategoryReward(@NonNull MindexCatalogGui gui, @NonNull Player player) {
+        String categoryId = gui.getCurrentCategoryId();
+        if (categoryId == null || categoryId.isBlank()) {
+            playSound(player, guiSoundSettings.getRegistrationFail());
+            player.sendMessage(colorize("&c카테고리 화면에서만 보상을 수령할 수 있습니다."));
+            return false;
+        }
+
+        CategoryRewardStatus status = categoryRewardService.claim(player, categoryId);
+        return switch (status) {
+            case SUCCESS -> {
+                playSound(player, guiSoundSettings.getRegistrationSuccess());
+                player.sendMessage(colorize("&a카테고리 완료 보상을 수령했습니다."));
+                yield true;
+            }
+            case CATEGORY_NOT_FOUND -> {
+                playSound(player, guiSoundSettings.getRegistrationFail());
+                player.sendMessage(colorize("&c존재하지 않는 카테고리입니다."));
+                yield false;
+            }
+            case CATEGORY_NOT_COMPLETE -> {
+                playSound(player, guiSoundSettings.getRegistrationFail());
+                player.sendMessage(colorize("&c아직 이 카테고리를 모두 완성하지 못했습니다."));
+                yield false;
+            }
+            case ALREADY_CLAIMED -> {
+                playSound(player, guiSoundSettings.getRegistrationFail());
+                player.sendMessage(colorize("&e이미 이 카테고리 보상을 수령했습니다."));
+                yield false;
+            }
+        };
     }
 
     private void playSound(@NonNull Player player, @NonNull GuiSoundSetting soundSetting) {

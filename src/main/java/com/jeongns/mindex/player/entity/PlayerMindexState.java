@@ -14,6 +14,8 @@ public final class PlayerMindexState {
     private UUID playerUuid;
     @NonNull
     private Set<String> unlockedEntryIds;
+    @NonNull
+    private Set<String> claimedCategoryRewardIds;
 
     public boolean isUnlocked(String entryId) {
         return unlockedEntryIds.contains(entryId);
@@ -25,5 +27,13 @@ public final class PlayerMindexState {
 
     public int getUnlockedCount() {
         return unlockedEntryIds.size();
+    }
+
+    public boolean hasClaimedCategoryReward(String categoryId) {
+        return claimedCategoryRewardIds.contains(categoryId);
+    }
+
+    public boolean claimCategoryReward(String categoryId) {
+        return claimedCategoryRewardIds.add(categoryId);
     }
 }

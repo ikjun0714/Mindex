@@ -10,6 +10,7 @@ import com.jeongns.mindex.player.PlayerStateManager;
 import com.jeongns.mindex.mindexGui.render.CatalogGuiRenderResult;
 import com.jeongns.mindex.mindexGui.render.MindexCatalogGuiRenderer;
 import com.jeongns.mindex.service.registration.RegistrationService;
+import com.jeongns.mindex.service.reward.CategoryRewardService;
 import lombok.NonNull;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
@@ -42,7 +43,8 @@ public final class MindexCatalogGui implements InventoryHolder {
             @NonNull LockedEntryDisplay lockedEntryDisplay,
             @NonNull GuiSoundSettings guiSoundSettings,
             @NonNull PlayerStateManager playerStateManager,
-            @NonNull RegistrationService registrationService
+            @NonNull RegistrationService registrationService,
+            @NonNull CategoryRewardService categoryRewardService
     ) {
         this.ownerUuid = ownerUuid;
         this.catalog = catalog;
@@ -51,7 +53,11 @@ public final class MindexCatalogGui implements InventoryHolder {
         this.guiSoundSettings = guiSoundSettings;
         this.playerStateManager = playerStateManager;
         this.renderer = new MindexCatalogGuiRenderer();
-        this.interactionHandler = new MindexCatalogGuiInteractionHandler(registrationService, guiSoundSettings);
+        this.interactionHandler = new MindexCatalogGuiInteractionHandler(
+                registrationService,
+                categoryRewardService,
+                guiSoundSettings
+        );
         this.slotActions = new HashMap<>();
         this.page = 0;
         this.maxPage = 1;
@@ -147,6 +153,10 @@ public final class MindexCatalogGui implements InventoryHolder {
 
     public UUID getOwnerUuid() {
         return ownerUuid;
+    }
+
+    public String getCurrentCategoryId() {
+        return categoryId;
     }
 
     public GuiAction findAction(int rawSlot) {
