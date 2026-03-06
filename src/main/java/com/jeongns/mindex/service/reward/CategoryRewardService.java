@@ -4,6 +4,7 @@ import com.jeongns.mindex.catalog.CatalogManager;
 import com.jeongns.mindex.catalog.entity.MindexCategory;
 import com.jeongns.mindex.catalog.entity.MindexEntry;
 import com.jeongns.mindex.player.PlayerStateManager;
+import com.jeongns.mindex.player.entity.PlayerMindexState;
 import lombok.NonNull;
 import org.bukkit.entity.Player;
 
@@ -34,20 +35,22 @@ public class CategoryRewardService {
         }
 
         MindexCategory category = categoryOptional.get();
-        if (!isCategoryCompleted(player, category)) {
+        PlayerMindexState playerState = playerStateManager.getOrCreate(player.getUniqueId());
+        if (!isCategoryCompleted(category, playerState)) {
             return CategoryRewardStatus.CATEGORY_NOT_COMPLETE;
         }
-        if (!playerStateManager.claimCategoryReward(player.getUniqueId(), category.getId())) {
+        if (playerState.hasClaimedCategoryReward(category.getId())) {
             return CategoryRewardStatus.ALREADY_CLAIMED;
         }
 
         rewardExecutor.execute(player, category.getReward());
+        playerStateManager.claimCategoryReward(player.getUniqueId(), category.getId());
         return CategoryRewardStatus.SUCCESS;
     }
 
-    private boolean isCategoryCompleted(@NonNull Player player, @NonNull MindexCategory category) {
+    private boolean isCategoryCompleted(@NonNull MindexCategory category, @NonNull PlayerMindexState playerState) {
         for (MindexEntry entry : category.getEntries()) {
-            if (!playerStateManager.isUnlocked(player.getUniqueId(), entry.getId())) {
+            if (!playerState.isUnlocked(entry.getId())) {
                 return false;
             }
         }

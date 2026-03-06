@@ -7,6 +7,7 @@ import com.jeongns.mindex.mindexGui.model.GuiModel;
 import com.jeongns.mindex.mindexGui.model.GuiSoundSettings;
 import com.jeongns.mindex.mindexGui.model.LockedEntryDisplay;
 import com.jeongns.mindex.player.PlayerStateManager;
+import com.jeongns.mindex.player.entity.PlayerMindexState;
 import com.jeongns.mindex.mindexGui.render.CatalogGuiRenderResult;
 import com.jeongns.mindex.mindexGui.render.MindexCatalogGuiRenderer;
 import com.jeongns.mindex.service.registration.RegistrationService;
@@ -92,12 +93,13 @@ public final class MindexCatalogGui implements InventoryHolder {
     }
 
     private void render() {
+        PlayerMindexState playerState = playerStateManager.getOrCreate(ownerUuid);
         CatalogGuiRenderResult result = renderer.render(
                 this,
                 catalog,
                 guiModel,
                 lockedEntryDisplay,
-                playerStateManager,
+                playerState,
                 categoryId,
                 page
         );

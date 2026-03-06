@@ -11,7 +11,7 @@ import com.jeongns.mindex.mindexGui.model.GuiModel;
 import com.jeongns.mindex.mindexGui.model.GuiView;
 import com.jeongns.mindex.mindexGui.model.LockedEntryDisplay;
 import com.jeongns.mindex.mindexGui.model.LockedEntryDisplayMode;
-import com.jeongns.mindex.player.PlayerStateManager;
+import com.jeongns.mindex.player.entity.PlayerMindexState;
 import com.jeongns.mindex.mindexGui.view.MindexCatalogGui;
 import lombok.NonNull;
 import net.kyori.adventure.text.Component;
@@ -35,7 +35,7 @@ public final class MindexCatalogGuiRenderer {
             @NonNull MindexCatalog catalog,
             @NonNull GuiModel guiModel,
             @NonNull LockedEntryDisplay lockedEntryDisplay,
-            @NonNull PlayerStateManager playerStateManager,
+            @NonNull PlayerMindexState playerState,
             String categoryId,
             int requestedPage
     ) {
@@ -54,7 +54,7 @@ public final class MindexCatalogGuiRenderer {
         MindexCategory currentCategory = findCategory(catalog, categoryId);
 
         renderBaseLayout(guiModel, view, inventory, slotActions, currentCategory);
-        renderEntries(entries, entrySlots, page, pageSize, inventory, slotActions, lockedEntryDisplay, playerStateManager, holder);
+        renderEntries(entries, entrySlots, page, pageSize, inventory, slotActions, lockedEntryDisplay, playerState);
 
         return new CatalogGuiRenderResult(inventory, slotActions, page, maxPage);
     }
@@ -111,8 +111,7 @@ public final class MindexCatalogGuiRenderer {
             @NonNull Inventory inventory,
             @NonNull Map<Integer, GuiAction> slotActions,
             @NonNull LockedEntryDisplay lockedEntryDisplay,
-            @NonNull PlayerStateManager playerStateManager,
-            @NonNull MindexCatalogGui holder
+            @NonNull PlayerMindexState playerState
     ) {
         if (pageSize <= 0 || entries.isEmpty()) {
             return;
@@ -125,7 +124,7 @@ public final class MindexCatalogGuiRenderer {
         for (int i = start; i < end; i++) {
             MindexEntry entry = entries.get(i);
             int slot = slots.get(targetIndex++);
-            boolean unlocked = playerStateManager.isUnlocked(holder.getOwnerUuid(), entry.getId());
+            boolean unlocked = playerState.isUnlocked(entry.getId());
             slotActions.put(slot, GuiAction.registerEntry(entry.getId()));
             inventory.setItem(slot, unlocked
                     ? createItem(
