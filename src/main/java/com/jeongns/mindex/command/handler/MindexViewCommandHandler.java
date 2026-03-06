@@ -18,6 +18,7 @@ public final class MindexViewCommandHandler implements CommandHandler {
     @Override
     public LiteralArgumentBuilder<CommandSourceStack> createCommand() {
         return Commands.literal("view")
+                .requires(this::canUse)
                 .executes(ctx -> {
                     execute(ctx.getSource(), new String[0]);
                     return Command.SINGLE_SUCCESS;

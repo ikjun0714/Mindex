@@ -16,6 +16,7 @@ public final class RootCommandHandler implements CommandHandler {
     @Override
     public LiteralArgumentBuilder<CommandSourceStack> createCommand() {
         return Commands.literal("mindex")
+                .requires(this::canUse)
                 .executes(ctx -> {
                     execute(ctx.getSource(), new String[0]);
                     return Command.SINGLE_SUCCESS;
@@ -24,6 +25,12 @@ public final class RootCommandHandler implements CommandHandler {
 
     @Override
     public void execute(CommandSourceStack source, String[] args) {
-        source.getSender().sendPlainMessage("마인크래프트 도감 플러그인 Mindex");
+        source.getSender().sendPlainMessage("=== Mindex ===");
+        source.getSender().sendPlainMessage("마인크래프트 도감 플러그인입니다.");
+        source.getSender().sendPlainMessage("/mindex - 안내 보기");
+        source.getSender().sendPlainMessage("/mindex view - 내 도감 보기");
+        source.getSender().sendPlainMessage("/mindex reset <username> - 대상 유저 도감 초기화");
+
+        plugin.getLogger().info("[Command] /mindex shown to " + source.getSender().getName());
     }
 }

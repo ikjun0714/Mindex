@@ -1,7 +1,7 @@
 package com.jeongns.mindex.command;
 
 import com.jeongns.mindex.command.handler.CommandHandler;
-import com.jeongns.mindex.command.handler.HelpCommandHandler;
+import com.jeongns.mindex.command.handler.MindexResetCommandHandler;
 import com.jeongns.mindex.command.handler.MindexViewCommandHandler;
 import com.jeongns.mindex.command.handler.RootCommandHandler;
 import com.jeongns.mindex.manager.Manager;
@@ -21,7 +21,7 @@ public final class CommandManager implements Manager {
     public void initialize() {
         CommandHandler rootCommand = new RootCommandHandler(plugin);
         List<CommandHandler> handlers = List.of(
-                new HelpCommandHandler(plugin),
+                new MindexResetCommandHandler(plugin),
                 new MindexViewCommandHandler(plugin)
         );
 

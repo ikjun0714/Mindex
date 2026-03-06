@@ -4,3 +4,7 @@ main: com.jeongns.mindex.MindexPlugin
 description: 마인크래프트 도감 플러그인
 author: Jeongns
 api-version: '1.21.11'
+permissions:
+  mindex.command.reset:
+    description: 대상 유저의 도감 기록을 초기화합니다.
+    default: op

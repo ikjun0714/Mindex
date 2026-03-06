@@ -45,6 +45,10 @@ public class PlayerStateManager implements Manager {
         repository.findByPlayerId(playerId).ifPresent(repository::save);
     }
 
+    public void reset(@NonNull UUID playerId) {
+        repository.deleteByPlayerId(playerId);
+    }
+
     public void unload(@NonNull UUID playerId) {
     }
 }
