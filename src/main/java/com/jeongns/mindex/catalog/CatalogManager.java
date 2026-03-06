@@ -8,7 +8,10 @@ import com.jeongns.mindex.manager.Manager;
 import lombok.Getter;
 import lombok.NonNull;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
 
 public class CatalogManager implements Manager {
@@ -17,6 +20,10 @@ public class CatalogManager implements Manager {
 
     @Getter
     private MindexCatalog catalog = new MindexCatalog(List.of());
+    @NonNull
+    private Map<String, MindexCategory> categoryIndex = Map.of();
+    @NonNull
+    private Map<String, MindexEntry> entryIndex = Map.of();
 
     public CatalogManager(@NonNull CatalogConfigLoader configLoader) {
         this.configLoader = configLoader;
@@ -24,12 +31,12 @@ public class CatalogManager implements Manager {
 
     @Override
     public void initialize() {
-        this.catalog = new MindexCatalog(configLoader.loadCategories());
+        applyCatalog(configLoader.loadCategories());
     }
 
     @Override
     public void reload() {
-        this.catalog = new MindexCatalog(configLoader.loadCategories());
+        applyCatalog(configLoader.loadCategories());
     }
 
     public List<MindexCategory> getCategories() {
@@ -37,15 +44,30 @@ public class CatalogManager implements Manager {
     }
 
     public Optional<MindexCategory> findCategory(@NonNull String categoryId) {
-        return catalog.getCategories().stream()
-                .filter(category -> category.getId().equalsIgnoreCase(categoryId))
-                .findFirst();
+        return Optional.ofNullable(categoryIndex.get(categoryId.toLowerCase(Locale.ROOT)));
     }
 
     public Optional<MindexEntry> findEntry(@NonNull String entryId) {
-        return catalog.getCategories().stream()
-                .flatMap(category -> category.getEntries().stream())
-                .filter(entry -> entry.getId().equalsIgnoreCase(entryId))
-                .findFirst();
+        return Optional.ofNullable(entryIndex.get(entryId.toLowerCase(Locale.ROOT)));
+    }
+
+    private void applyCatalog(@NonNull List<MindexCategory> categories) {
+        this.catalog = new MindexCatalog(categories);
+        buildIndexes(categories);
+    }
+
+    private void buildIndexes(@NonNull List<MindexCategory> categories) {
+        Map<String, MindexCategory> nextCategoryIndex = new LinkedHashMap<>();
+        Map<String, MindexEntry> nextEntryIndex = new LinkedHashMap<>();
+
+        for (MindexCategory category : categories) {
+            nextCategoryIndex.put(category.getId().toLowerCase(Locale.ROOT), category);
+            for (MindexEntry entry : category.getEntries()) {
+                nextEntryIndex.put(entry.getId().toLowerCase(Locale.ROOT), entry);
+            }
+        }
+
+        this.categoryIndex = Map.copyOf(nextCategoryIndex);
+        this.entryIndex = Map.copyOf(nextEntryIndex);
     }
 }
