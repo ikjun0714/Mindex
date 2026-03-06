@@ -35,7 +35,8 @@ public class CategoryRewardService {
         }
 
         MindexCategory category = categoryOptional.get();
-        PlayerMindexState playerState = playerStateManager.getOrCreate(player.getUniqueId());
+        PlayerMindexState playerState = playerStateManager.find(player.getUniqueId())
+                .orElseGet(() -> playerStateManager.create(player.getUniqueId()));
         if (!isCategoryCompleted(category, playerState)) {
             return CategoryRewardStatus.CATEGORY_NOT_COMPLETE;
         }

@@ -93,7 +93,8 @@ public final class MindexCatalogGui implements InventoryHolder {
     }
 
     private void render() {
-        PlayerMindexState playerState = playerStateManager.getOrCreate(ownerUuid);
+        PlayerMindexState playerState = playerStateManager.find(ownerUuid)
+                .orElseGet(() -> playerStateManager.create(ownerUuid));
         CatalogGuiRenderResult result = renderer.render(
                 this,
                 catalog,
