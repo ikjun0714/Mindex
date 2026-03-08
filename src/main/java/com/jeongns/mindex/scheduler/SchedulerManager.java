@@ -27,6 +27,11 @@ public class SchedulerManager implements Manager {
     }
 
     @Override
+    public void reload() {
+        scheduleAutoSave();
+    }
+
+    @Override
     public void shutdown() {
         if (autoSaveTask != null) {
             autoSaveTask.cancel();

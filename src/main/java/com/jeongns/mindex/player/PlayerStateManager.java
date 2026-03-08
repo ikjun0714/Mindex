@@ -96,6 +96,12 @@ public class PlayerStateManager implements Manager {
     }
 
     @Override
+    public void reload() {
+        flushDirty();
+        cache.clear();
+    }
+
+    @Override
     public void shutdown() {
         flushDirty();
         cache.clear();

@@ -30,6 +30,7 @@ public final class RootCommandHandler implements CommandHandler {
         source.getSender().sendPlainMessage("/mindex - 안내 보기");
         source.getSender().sendPlainMessage("/mindex view - 내 도감 보기");
         source.getSender().sendPlainMessage("/mindex reset <username> - 대상 유저 도감 초기화");
+        source.getSender().sendPlainMessage("/mindex reload - 설정 및 데이터를 다시 불러오기");
 
         plugin.getLogger().info("[Command] /mindex shown to " + source.getSender().getName());
     }

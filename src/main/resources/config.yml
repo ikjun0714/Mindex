@@ -6,7 +6,7 @@ player-state:
 mindexGui:
   locked-entry-display:
     mode: FIXED_ITEM
-    material: GRAY_DYE
+    material: BARRIER
     custom-model-data:
   sounds:
     menu-select:

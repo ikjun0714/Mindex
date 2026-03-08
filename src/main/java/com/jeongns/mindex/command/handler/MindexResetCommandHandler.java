@@ -37,11 +37,7 @@ public final class MindexResetCommandHandler implements CommandHandler {
 
     @Override
     public void execute(CommandSourceStack source, String[] args) {
-        if (!(plugin instanceof MindexPlugin mindexPlugin) || mindexPlugin.getPlayerStateManager() == null) {
-            source.getSender().sendPlainMessage("플레이어 상태 매니저가 초기화되지 않았습니다.");
-            plugin.getLogger().warning("[Command] /mindex reset failed: PlayerStateManager not initialized");
-            return;
-        }
+        MindexPlugin mindexPlugin = (MindexPlugin) plugin;
 
         if (args.length == 0 || args[0].isBlank()) {
             source.getSender().sendPlainMessage("사용법: /mindex reset <username>");

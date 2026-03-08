@@ -6,7 +6,7 @@ import com.jeongns.mindex.command.CommandManager;
 import com.jeongns.mindex.mindexGui.MindexGuiManager;
 import com.jeongns.mindex.listener.ListenerManager;
 import com.jeongns.mindex.player.PlayerStateManager;
-import com.jeongns.mindex.player.repository.InMemoryPlayerStateRepository;
+import com.jeongns.mindex.player.repository.FilePlayerStateRepository;
 import com.jeongns.mindex.scheduler.SchedulerManager;
 import com.jeongns.mindex.service.registration.RegistrationService;
 import com.jeongns.mindex.service.reward.CategoryRewardService;
@@ -31,7 +31,7 @@ public final class MindexPlugin extends JavaPlugin {
     @Override
     public void onEnable() {
         this.catalogManager = new CatalogManager(new CatalogConfigLoader(this));
-        this.playerStateManager = new PlayerStateManager(new InMemoryPlayerStateRepository());
+        this.playerStateManager = new PlayerStateManager(new FilePlayerStateRepository(this));
         RewardExecutor rewardExecutor = new RewardExecutor(this);
         this.registrationService = new RegistrationService(
                 catalogManager,
@@ -62,23 +62,22 @@ public final class MindexPlugin extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        if (catalogManager != null) {
-            catalogManager.shutdown();
-        }
-        if (playerStateManager != null) {
-            playerStateManager.shutdown();
-        }
-        if (mindexGuiManager != null) {
-            mindexGuiManager.shutdown();
-        }
-        if (listenerManager != null) {
-            listenerManager.shutdown();
-        }
-        if (schedulerManager != null) {
-            schedulerManager.shutdown();
-        }
+        catalogManager.shutdown();
+        playerStateManager.shutdown();
+        mindexGuiManager.shutdown();
+        listenerManager.shutdown();
+        schedulerManager.shutdown();
         commandManager.shutdown();
 
         getLogger().info("Mindex 플러그인이 종료되었습니다.");
+    }
+
+    public void reloadPlugin() {
+        reloadConfig();
+
+        catalogManager.reload();
+        playerStateManager.reload();
+        mindexGuiManager.reload();
+        schedulerManager.reload();
     }
 }
