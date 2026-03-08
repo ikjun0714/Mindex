@@ -103,16 +103,10 @@ public class PlayerStateManager implements Manager {
 
     private void applyChanges(@NonNull UUID playerId, @NonNull List<PlayerStateChange> changes) {
         for (PlayerStateChange change : changes) {
-            if (change.type() == PlayerStateChangeType.CREATE) {
-                repository.create(playerId);
-                continue;
-            }
-            if (change.type() == PlayerStateChangeType.UNLOCK_ENTRY) {
-                repository.unlock(playerId, change.value());
-                continue;
-            }
-            if (change.type() == PlayerStateChangeType.CLAIM_CATEGORY_REWARD) {
-                repository.claimCategoryReward(playerId, change.value());
+            switch (change.type()) {
+                case CREATE -> repository.create(playerId);
+                case UNLOCK_ENTRY -> repository.unlock(playerId, change.value());
+                case CLAIM_CATEGORY_REWARD -> repository.claimCategoryReward(playerId, change.value());
             }
         }
     }
