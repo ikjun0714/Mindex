@@ -1,4 +1,6 @@
-package com.jeongns.mindex.player.repository;
+package com.jeongns.mindex.player.repository.impl;
+
+import com.jeongns.mindex.player.repository.PlayerStateRepository;
 
 import com.jeongns.mindex.player.entity.PlayerMindexState;
 import lombok.NonNull;

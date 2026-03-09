@@ -1,4 +1,6 @@
-package com.jeongns.mindex.player.repository;
+package com.jeongns.mindex.player.repository.impl;
+
+import com.jeongns.mindex.player.repository.PlayerStateRepository;
 
 import com.jeongns.mindex.player.entity.PlayerMindexState;
 import lombok.NonNull;
@@ -16,35 +18,31 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
-public class MySqlPlayerStateRepository implements PlayerStateRepository {
+public class PostgresPlayerStateRepository implements PlayerStateRepository {
     private static final String PLAYER_STATE_TABLE = "mindex_player_state";
     private static final String UNLOCKED_ENTRIES_TABLE = "mindex_unlocked_entries";
     private static final String CLAIMED_CATEGORY_REWARDS_TABLE = "mindex_claimed_category_rewards";
 
     private static final String CREATE_PLAYER_STATE_TABLE_SQL = """
             CREATE TABLE IF NOT EXISTS mindex_player_state (
-                player_uuid CHAR(36) PRIMARY KEY
-            ) ENGINE=InnoDB
+                player_uuid UUID PRIMARY KEY
+            )
             """;
     private static final String CREATE_UNLOCKED_ENTRIES_TABLE_SQL = """
             CREATE TABLE IF NOT EXISTS mindex_unlocked_entries (
-                player_uuid CHAR(36) NOT NULL,
-                entry_id VARCHAR(255) NOT NULL,
+                player_uuid UUID NOT NULL,
+                entry_id TEXT NOT NULL,
                 PRIMARY KEY (player_uuid, entry_id),
-                CONSTRAINT fk_mindex_unlocked_entries_player
-                    FOREIGN KEY (player_uuid) REFERENCES mindex_player_state (player_uuid)
-                    ON DELETE CASCADE
-            ) ENGINE=InnoDB
+                FOREIGN KEY (player_uuid) REFERENCES mindex_player_state (player_uuid) ON DELETE CASCADE
+            )
             """;
     private static final String CREATE_CLAIMED_CATEGORY_REWARDS_TABLE_SQL = """
             CREATE TABLE IF NOT EXISTS mindex_claimed_category_rewards (
-                player_uuid CHAR(36) NOT NULL,
-                category_id VARCHAR(255) NOT NULL,
+                player_uuid UUID NOT NULL,
+                category_id TEXT NOT NULL,
                 PRIMARY KEY (player_uuid, category_id),
-                CONSTRAINT fk_mindex_claimed_category_rewards_player
-                    FOREIGN KEY (player_uuid) REFERENCES mindex_player_state (player_uuid)
-                    ON DELETE CASCADE
-            ) ENGINE=InnoDB
+                FOREIGN KEY (player_uuid) REFERENCES mindex_player_state (player_uuid) ON DELETE CASCADE
+            )
             """;
 
     @NonNull
@@ -54,7 +52,7 @@ public class MySqlPlayerStateRepository implements PlayerStateRepository {
     @NonNull
     private final String password;
 
-    public MySqlPlayerStateRepository(@NonNull JavaPlugin plugin) {
+    public PostgresPlayerStateRepository(@NonNull JavaPlugin plugin) {
         FileConfiguration config = plugin.getConfig();
         this.jdbcUrl = requireString(config, "database.jdbc-url");
         this.username = requireString(config, "database.username");
@@ -81,7 +79,7 @@ public class MySqlPlayerStateRepository implements PlayerStateRepository {
             );
             return Optional.of(new PlayerMindexState(playerId, unlockedEntryIds, claimedCategoryRewardIds));
         } catch (SQLException e) {
-            throw new IllegalStateException("MySQL 플레이어 상태 조회에 실패했습니다: " + playerId, e);
+            throw new IllegalStateException("PostgreSQL 플레이어 상태 조회에 실패했습니다: " + playerId, e);
         }
     }
 
@@ -89,12 +87,12 @@ public class MySqlPlayerStateRepository implements PlayerStateRepository {
     public void create(@NonNull UUID playerId) {
         try (Connection connection = getConnection();
              PreparedStatement statement = connection.prepareStatement(
-                     "INSERT IGNORE INTO " + PLAYER_STATE_TABLE + " (player_uuid) VALUES (?)"
+                     "INSERT INTO " + PLAYER_STATE_TABLE + " (player_uuid) VALUES (?) ON CONFLICT DO NOTHING"
              )) {
-            statement.setString(1, playerId.toString());
+            statement.setObject(1, playerId);
             statement.executeUpdate();
         } catch (SQLException e) {
-            throw new IllegalStateException("MySQL 플레이어 상태 생성에 실패했습니다: " + playerId, e);
+            throw new IllegalStateException("PostgreSQL 플레이어 상태 생성에 실패했습니다: " + playerId, e);
         }
     }
 
@@ -103,14 +101,15 @@ public class MySqlPlayerStateRepository implements PlayerStateRepository {
         try (Connection connection = getConnection()) {
             ensurePlayerExists(connection, playerId);
             try (PreparedStatement statement = connection.prepareStatement(
-                    "INSERT IGNORE INTO " + UNLOCKED_ENTRIES_TABLE + " (player_uuid, entry_id) VALUES (?, ?)"
+                    "INSERT INTO " + UNLOCKED_ENTRIES_TABLE + " (player_uuid, entry_id) VALUES (?, ?) "
+                            + "ON CONFLICT DO NOTHING"
             )) {
-                statement.setString(1, playerId.toString());
+                statement.setObject(1, playerId);
                 statement.setString(2, entryId);
                 return statement.executeUpdate() > 0;
             }
         } catch (SQLException e) {
-            throw new IllegalStateException("MySQL 엔트리 해금 저장에 실패했습니다: "
+            throw new IllegalStateException("PostgreSQL 엔트리 해금 저장에 실패했습니다: "
                     + playerId + " / " + entryId, e);
         }
     }
@@ -120,15 +119,15 @@ public class MySqlPlayerStateRepository implements PlayerStateRepository {
         try (Connection connection = getConnection()) {
             ensurePlayerExists(connection, playerId);
             try (PreparedStatement statement = connection.prepareStatement(
-                    "INSERT IGNORE INTO " + CLAIMED_CATEGORY_REWARDS_TABLE
-                            + " (player_uuid, category_id) VALUES (?, ?)"
+                    "INSERT INTO " + CLAIMED_CATEGORY_REWARDS_TABLE + " (player_uuid, category_id) VALUES (?, ?) "
+                            + "ON CONFLICT DO NOTHING"
             )) {
-                statement.setString(1, playerId.toString());
+                statement.setObject(1, playerId);
                 statement.setString(2, categoryId);
                 return statement.executeUpdate() > 0;
             }
         } catch (SQLException e) {
-            throw new IllegalStateException("MySQL 카테고리 보상 수령 저장에 실패했습니다: "
+            throw new IllegalStateException("PostgreSQL 카테고리 보상 수령 저장에 실패했습니다: "
                     + playerId + " / " + categoryId, e);
         }
     }
@@ -139,10 +138,10 @@ public class MySqlPlayerStateRepository implements PlayerStateRepository {
              PreparedStatement statement = connection.prepareStatement(
                      "DELETE FROM " + PLAYER_STATE_TABLE + " WHERE player_uuid = ?"
              )) {
-            statement.setString(1, playerId.toString());
+            statement.setObject(1, playerId);
             statement.executeUpdate();
         } catch (SQLException e) {
-            throw new IllegalStateException("MySQL 플레이어 상태 초기화에 실패했습니다: " + playerId, e);
+            throw new IllegalStateException("PostgreSQL 플레이어 상태 초기화에 실패했습니다: " + playerId, e);
         }
     }
 
@@ -153,7 +152,7 @@ public class MySqlPlayerStateRepository implements PlayerStateRepository {
             statement.executeUpdate(CREATE_UNLOCKED_ENTRIES_TABLE_SQL);
             statement.executeUpdate(CREATE_CLAIMED_CATEGORY_REWARDS_TABLE_SQL);
         } catch (SQLException e) {
-            throw new IllegalStateException("MySQL 스키마 초기화에 실패했습니다.", e);
+            throw new IllegalStateException("PostgreSQL 스키마 초기화에 실패했습니다.", e);
         }
     }
 
@@ -165,7 +164,7 @@ public class MySqlPlayerStateRepository implements PlayerStateRepository {
         try (PreparedStatement statement = connection.prepareStatement(
                 "SELECT 1 FROM " + PLAYER_STATE_TABLE + " WHERE player_uuid = ?"
         )) {
-            statement.setString(1, playerId.toString());
+            statement.setObject(1, playerId);
             try (ResultSet resultSet = statement.executeQuery()) {
                 return resultSet.next();
             }
@@ -174,9 +173,9 @@ public class MySqlPlayerStateRepository implements PlayerStateRepository {
 
     private void ensurePlayerExists(@NonNull Connection connection, @NonNull UUID playerId) throws SQLException {
         try (PreparedStatement statement = connection.prepareStatement(
-                "INSERT IGNORE INTO " + PLAYER_STATE_TABLE + " (player_uuid) VALUES (?)"
+                "INSERT INTO " + PLAYER_STATE_TABLE + " (player_uuid) VALUES (?) ON CONFLICT DO NOTHING"
         )) {
-            statement.setString(1, playerId.toString());
+            statement.setObject(1, playerId);
             statement.executeUpdate();
         }
     }
@@ -185,7 +184,7 @@ public class MySqlPlayerStateRepository implements PlayerStateRepository {
             throws SQLException {
         Set<String> values = new HashSet<>();
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
-            statement.setString(1, playerId.toString());
+            statement.setObject(1, playerId);
             try (ResultSet resultSet = statement.executeQuery()) {
                 while (resultSet.next()) {
                     values.add(resultSet.getString(1));

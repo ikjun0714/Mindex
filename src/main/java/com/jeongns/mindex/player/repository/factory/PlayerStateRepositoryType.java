@@ -1,4 +1,4 @@
-package com.jeongns.mindex.player.repository;
+package com.jeongns.mindex.player.repository.factory;
 
 import lombok.NonNull;
 
