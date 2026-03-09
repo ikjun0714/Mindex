@@ -4,7 +4,7 @@ plugins {
 }
 
 group = 'com.jeongns'
-version = 'DEV'
+version = '0.1.0-SNAPSHOT'
 
 repositories {
     mavenCentral()
