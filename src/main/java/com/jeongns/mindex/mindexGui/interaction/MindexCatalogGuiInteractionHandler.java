@@ -125,6 +125,7 @@ public final class MindexCatalogGuiInteractionHandler {
         CategoryRewardStatus status = categoryRewardService.claim(player, categoryId);
         return switch (status) {
             case SUCCESS -> {
+                gui.refresh();
                 playSound(player, guiSoundSettings.getRegistrationSuccess());
                 player.sendMessage(MiniMessageUtil.parse(guiMessageSettings.getCategoryRewardSuccess()));
                 yield true;
