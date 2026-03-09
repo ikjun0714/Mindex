@@ -7,6 +7,11 @@ import com.jeongns.mindex.mindexGui.MindexGuiManager;
 import com.jeongns.mindex.listener.ListenerManager;
 import com.jeongns.mindex.player.PlayerStateManager;
 import com.jeongns.mindex.player.repository.FilePlayerStateRepository;
+import com.jeongns.mindex.player.repository.InMemoryPlayerStateRepository;
+import com.jeongns.mindex.player.repository.MySqlPlayerStateRepository;
+import com.jeongns.mindex.player.repository.PostgresPlayerStateRepository;
+import com.jeongns.mindex.player.repository.PlayerStateRepository;
+import com.jeongns.mindex.player.repository.PlayerStateRepositoryType;
 import com.jeongns.mindex.scheduler.SchedulerManager;
 import com.jeongns.mindex.service.registration.RegistrationService;
 import com.jeongns.mindex.service.reward.CategoryRewardService;
@@ -31,7 +36,7 @@ public final class MindexPlugin extends JavaPlugin {
     @Override
     public void onEnable() {
         this.catalogManager = new CatalogManager(new CatalogConfigLoader(this));
-        this.playerStateManager = new PlayerStateManager(new FilePlayerStateRepository(this));
+        this.playerStateManager = new PlayerStateManager(createPlayerStateRepository());
         RewardExecutor rewardExecutor = new RewardExecutor(this);
         this.registrationService = new RegistrationService(
                 catalogManager,
@@ -79,5 +84,17 @@ public final class MindexPlugin extends JavaPlugin {
         playerStateManager.reload();
         mindexGuiManager.reload();
         schedulerManager.reload();
+    }
+
+    private PlayerStateRepository createPlayerStateRepository() {
+        String configuredType = getConfig().getString("player-state-storage", PlayerStateRepositoryType.FILE.name());
+        PlayerStateRepositoryType repositoryType = PlayerStateRepositoryType.fromConfig(configuredType);
+
+        return switch (repositoryType) {
+            case FILE -> new FilePlayerStateRepository(this);
+            case IN_MEMORY -> new InMemoryPlayerStateRepository();
+            case POSTGRESQL -> new PostgresPlayerStateRepository(this);
+            case MYSQL -> new MySqlPlayerStateRepository(this);
+        };
     }
 }

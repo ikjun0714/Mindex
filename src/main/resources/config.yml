@@ -1,3 +1,10 @@
+player-state-storage: FILE
+
+database:
+  jdbc-url: "jdbc:postgresql://localhost:5432/mindex"
+  username: "postgres"
+  password: "postgres"
+
 locked-entry-display:
   mode: FIXED_ITEM
   material: BARRIER

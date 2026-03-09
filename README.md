@@ -31,6 +31,26 @@
 
 ```text
 config.yml
+├─ player-state-storage                                    # 문자열, 플레이어 데이터 저장소 타입
+│                                                           값:
+│                                                           - FILE
+│                                                           - IN_MEMORY
+│                                                           - POSTGRESQL
+│                                                           설명:
+│                                                           - FILE: 플러그인 폴더 아래 yml 파일로 저장
+│                                                           - IN_MEMORY: 메모리에만 저장, 재시작 시 초기화
+│                                                           - POSTGRESQL: PostgreSQL 데이터베이스에 저장
+│                                                           - MYSQL: MySQL 데이터베이스에 저장
+│
+├─ database                                                # DB 저장소 공통 설정
+│  ├─ jdbc-url                                             # 문자열
+│  │                                                        예:
+│  │                                                        - PostgreSQL: jdbc:postgresql://localhost:5432/mindex
+│  │                                                        - MySQL: jdbc:mysql://localhost:3306/mindex
+│  │                                                        설명: 선택한 DB 저장소 타입에 맞는 JDBC 접속 URL
+│  ├─ username                                             # 문자열, DB 접속 계정
+│  └─ password                                             # 문자열, DB 접속 비밀번호
+│
 ├─ locked-entry-display                                    # 잠금 상태 엔트리 표시 설정
 │  ├─ mode                                                 # 문자열
 │  │                                                        값:
