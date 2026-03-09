@@ -1,24 +1,19 @@
 package com.jeongns.mindex.player.repository.impl;
 
-import com.jeongns.mindex.player.repository.PlayerStateRepository;
-
 import com.jeongns.mindex.player.entity.PlayerMindexState;
+import com.jeongns.mindex.player.repository.PlayerStateRepository;
 import lombok.NonNull;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
 public class PostgresPlayerStateRepository implements PlayerStateRepository {
+    private static final String DRIVER_CLASS_NAME = "org.postgresql.Driver";
     private static final String PLAYER_STATE_TABLE = "mindex_player_state";
     private static final String UNLOCKED_ENTRIES_TABLE = "mindex_unlocked_entries";
     private static final String CLAIMED_CATEGORY_REWARDS_TABLE = "mindex_claimed_category_rewards";
@@ -57,6 +52,7 @@ public class PostgresPlayerStateRepository implements PlayerStateRepository {
         this.jdbcUrl = requireString(config, "database.jdbc-url");
         this.username = requireString(config, "database.username");
         this.password = config.getString("database.password", "");
+        loadDriver();
         initializeSchema();
     }
 
@@ -158,6 +154,14 @@ public class PostgresPlayerStateRepository implements PlayerStateRepository {
 
     private Connection getConnection() throws SQLException {
         return DriverManager.getConnection(jdbcUrl, username, password);
+    }
+
+    private void loadDriver() {
+        try {
+            Class.forName(DRIVER_CLASS_NAME);
+        } catch (ClassNotFoundException e) {
+            throw new IllegalStateException("PostgreSQL JDBC 드라이버를 찾을 수 없습니다.", e);
+        }
     }
 
     private boolean existsPlayer(@NonNull Connection connection, @NonNull UUID playerId) throws SQLException {

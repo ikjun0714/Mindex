@@ -19,6 +19,7 @@ import java.util.Set;
 import java.util.UUID;
 
 public class MySqlPlayerStateRepository implements PlayerStateRepository {
+    private static final String DRIVER_CLASS_NAME = "com.mysql.cj.jdbc.Driver";
     private static final String PLAYER_STATE_TABLE = "mindex_player_state";
     private static final String UNLOCKED_ENTRIES_TABLE = "mindex_unlocked_entries";
     private static final String CLAIMED_CATEGORY_REWARDS_TABLE = "mindex_claimed_category_rewards";
@@ -61,6 +62,7 @@ public class MySqlPlayerStateRepository implements PlayerStateRepository {
         this.jdbcUrl = requireString(config, "database.jdbc-url");
         this.username = requireString(config, "database.username");
         this.password = config.getString("database.password", "");
+        loadDriver();
         initializeSchema();
     }
 
@@ -161,6 +163,14 @@ public class MySqlPlayerStateRepository implements PlayerStateRepository {
 
     private Connection getConnection() throws SQLException {
         return DriverManager.getConnection(jdbcUrl, username, password);
+    }
+
+    private void loadDriver() {
+        try {
+            Class.forName(DRIVER_CLASS_NAME);
+        } catch (ClassNotFoundException e) {
+            throw new IllegalStateException("MySQL JDBC 드라이버를 찾을 수 없습니다.", e);
+        }
     }
 
     private boolean existsPlayer(@NonNull Connection connection, @NonNull UUID playerId) throws SQLException {
