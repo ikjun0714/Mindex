@@ -31,68 +31,46 @@
 
 ```text
 config.yml
-├─ player-state-storage                                    # 문자열, 플레이어 데이터 저장소 타입
+├─ player-state-storage                                    # 플레이어 데이터 저장소 타입
 │                                                           값:
-│                                                           - FILE
-│                                                           - IN_MEMORY
-│                                                           - POSTGRESQL
-│                                                           설명:
 │                                                           - FILE: 플러그인 폴더 아래 yml 파일로 저장
-│                                                           - IN_MEMORY: 메모리에만 저장, 재시작 시 초기화
+│                                                           - IN_MEMORY: 메모리에만 저장, 서버 재시작 시 초기화
 │                                                           - POSTGRESQL: PostgreSQL 데이터베이스에 저장
 │                                                           - MYSQL: MySQL 데이터베이스에 저장
-│
 ├─ database                                                # DB 저장소 공통 설정
-│  ├─ jdbc-url                                             # 문자열
-│  │                                                        예:
-│  │                                                        - PostgreSQL: jdbc:postgresql://localhost:5432/mindex
-│  │                                                        - MySQL: jdbc:mysql://localhost:3306/mindex
-│  │                                                        설명: 선택한 DB 저장소 타입에 맞는 JDBC 접속 URL
-│  ├─ username                                             # 문자열, DB 접속 계정
-│  └─ password                                             # 문자열, DB 접속 비밀번호
-│
+│  ├─ jdbc-url                                             # JDBC URL 문자열: 선택한 DB 저장소 타입에 맞는 접속 URL
+│  │                                                        예시:
+│  │                                                        - jdbc:postgresql://localhost:5432/mindex
+│  │                                                        - jdbc:mysql://localhost:3306/mindex
+│  ├─ username                                             # DB 접속 계정 문자열: PostgreSQL/MySQL 접속 계정
+│  └─ password                                             # DB 접속 비밀번호 문자열: 비밀번호가 없으면 빈 문자열 사용 가능
 ├─ locked-entry-display                                    # 잠금 상태 엔트리 표시 설정
-│  ├─ mode                                                 # 문자열
+│  ├─ mode                                                 # 잠금 엔트리 표시 방식
 │  │                                                        값:
-│  │                                                        - FIXED_ITEM
-│  │                                                        - ENTRY_ITEM_CUSTOM_MODEL_DATA
-│  │                                                        설명:
 │  │                                                        - FIXED_ITEM: 지정한 아이템으로 잠금 엔트리를 표시
 │  │                                                        - ENTRY_ITEM_CUSTOM_MODEL_DATA: 엔트리 원래 아이템을 유지하고 custom-model-data만 적용
-│  ├─ material                                             # Material 이름, 예: BARRIER, PAPER, GRAY_DYE
-│  │                                                        설명: FIXED_ITEM 모드에서 사용할 아이템
-│  └─ custom-model-data                                    # [선택] 정수(Integer)
-│                                                           설명: 잠금 엔트리 아이템에 적용할 CustomModelData
-│                                                           비워두면 적용하지 않음
-│
+│  ├─ material                                             # Bukkit Material 이름: FIXED_ITEM 모드에서 사용할 아이템
+│  └─ custom-model-data                                    # [선택] 정수(Integer): 잠금 엔트리 아이템에 적용할 CustomModelData, 비워두면 적용하지 않음
 ├─ sounds                                                  # GUI 사운드 설정
-│  ├─ menu-select                                          # 일반 선택 사운드
-│  ├─ registration-success                                 # 등록 성공 사운드
-│  └─ registration-fail                                    # 등록 실패/보상 실패 사운드
+│  ├─ menu-select                                          # 일반 선택 사운드 설정 묶음
+│  ├─ registration-success                                 # 등록 성공 사운드 설정 묶음
+│  └─ registration-fail                                    # 등록 실패/보상 실패 사운드 설정 묶음
 │
-│  공통 하위 키:
-│  ├─ enabled                                              # boolean, 해당 사운드 사용 여부
-│  ├─ sound                                                # 문자열, namespaced key
-│  │                                                        예: minecraft:ui.button.click
-│  ├─ volume                                               # 실수(float/double), 사운드 볼륨
-│  └─ pitch                                                # 실수(float/double), 사운드 피치
-│
+│  공통 하위 키
+│  ├─ enabled                                              # true | false: 해당 사운드 사용 여부
+│  ├─ sound                                                # namespaced key 문자열: 마인크래프트 사운드 키, 예시 minecraft:ui.button.click
+│  ├─ volume                                               # 실수(float/double): 사운드 볼륨
+│  └─ pitch                                                # 실수(float/double): 사운드 피치
 ├─ messages                                                # 플레이어 안내 메시지
-│  ├─ registration                                         # 도감 등록 관련 메시지
-│  │  ├─ success                                           # 문자열, 등록 성공 메시지
-│  │  │                                                     지원 치환값: <entry_name>
-│  │  ├─ already-registered                                # 문자열, 이미 등록된 엔트리일 때 표시
-│  │  └─ requirement-not-met                               # 문자열, 등록 조건 미충족 시 표시
-│  │
-│  └─ category-reward                                      # 카테고리 완료 보상 관련 메시지
-│     ├─ success                                           # 문자열, 보상 수령 성공 메시지
-│     ├─ not-complete                                      # 문자열, 카테고리가 아직 완료되지 않았을 때 표시
-│     └─ already-claimed                                   # 문자열, 이미 수령한 보상일 때 표시
-│
-└─ auto-save-interval-minutes                              # 정수(int), 플레이어 데이터 자동 저장 주기(분)
-                                                           값:
-                                                           - 0: 자동 저장 비활성화
-                                                           - 1 이상: 해당 분 주기로 자동 저장
+│  ├─ registration                                         # 도감 등록 관련 메시지 묶음
+│  │  ├─ success                                           # 문자열: 등록 성공 메시지, 지원 치환값 <entry_name>
+│  │  ├─ already-registered                                # 문자열: 이미 등록된 엔트리일 때 표시
+│  │  └─ requirement-not-met                               # 문자열: 등록 조건 미충족 시 표시
+│  └─ category-reward                                      # 카테고리 완료 보상 관련 메시지 묶음
+│     ├─ success                                           # 문자열: 보상 수령 성공 메시지
+│     ├─ not-complete                                      # 문자열: 카테고리가 아직 완료되지 않았을 때 표시
+│     └─ already-claimed                                   # 문자열: 이미 수령한 보상일 때 표시
+└─ auto-save-interval-minutes                              # 0 이상의 정수: 플레이어 데이터 자동 저장 주기(분), 0은 비활성화
 ```
 
 주의:
@@ -102,6 +80,7 @@ config.yml
 - `custom-model-data`는 음수를 사용할 수 없습니다.
 - 메시지에는 MiniMessage 형식을 사용합니다.
 - 예: `<green>성공`, `<yellow>경고`, `<red>오류`, `<gray>설명`
+- `player-state-storage`와 `database.*` 변경은 `/mindex reload`가 아니라 서버 재시작 후 반영됩니다.
 
 ## `gui.yml`
 
@@ -114,35 +93,32 @@ gui.yml
 ├─ defaultSymbols                                          # 공통 심볼 정의
 │  └─ "<symbol>"                                           # 한 글자 심볼
 │     ├─ role                                              # 심볼 역할
-│     │                                                     값 예시:
+│     │                                                     값:
 │     │                                                     - BORDER
 │     │                                                     - ENTRY_SLOT
 │     │                                                     - PREV_PAGE
 │     │                                                     - NEXT_PAGE
 │     │                                                     - OPEN_DEFAULT
 │     │                                                     - CLAIM_CATEGORY_REWARD
-│     ├─ material                                          # Material 이름
-│     ├─ name                                              # [선택] 문자열, 버튼 표시 이름
-│     └─ lore                                              # [선택] 문자열 리스트, 버튼 설명
-│
+│     ├─ material                                          # Bukkit Material 이름: 버튼 아이템 재질
+│     ├─ name                                              # [선택] 문자열: 버튼 표시 이름
+│     └─ lore                                              # [선택] 문자열 리스트: 버튼 설명
 ├─ categorySymbols                                         # 기본 화면 카테고리 버튼 정의
 │  └─ "<symbol>"                                           # 한 글자 심볼
-│     ├─ role                                              # CATEGORY_BUTTON 고정
-│     ├─ categoryId                                        # 연결할 카테고리 id
-│     ├─ material                                          # Material 이름
-│     ├─ name                                              # [선택] 문자열, 버튼 표시 이름
-│     └─ lore                                              # [선택] 문자열 리스트, 버튼 설명
-│
+│     ├─ role                                              # CATEGORY_BUTTON: 기본 화면 카테고리 버튼 고정 역할
+│     ├─ categoryId                                        # 카테고리 ID 문자열: 클릭 시 열 카테고리
+│     ├─ material                                          # Bukkit Material 이름: 버튼 아이템 재질
+│     ├─ name                                              # [선택] 문자열: 버튼 표시 이름
+│     └─ lore                                              # [선택] 문자열 리스트: 버튼 설명
 ├─ entryView                                               # 카테고리 상세 화면
-│  ├─ title                                                # 문자열, GUI 제목
-│  │                                                        지원 치환값: <category_name>, <page>, <max_page>
-│  ├─ rows                                                 # 정수, 1~6
-│  └─ layout                                               # 문자열 리스트, 각 줄은 9칸이어야 함
-│
+│  ├─ title                                                # 문자열: 카테고리 상세 GUI 제목
+│  │                                                        지원 치환값: <category_name> <page> <max_page>
+│  ├─ rows                                                 # 1~6 정수: 인벤토리 행 수
+│  └─ layout                                               # 문자열 리스트: 각 줄은 9칸이어야 함
 └─ defaultView                                             # 카테고리 선택 화면
-   ├─ title                                                # 문자열, GUI 제목
-   ├─ rows                                                 # 정수, 1~6
-   └─ layout                                               # 문자열 리스트, 각 줄은 9칸이어야 함
+   ├─ title                                                # 문자열: 카테고리 선택 GUI 제목
+   ├─ rows                                                 # 1~6 정수: 인벤토리 행 수
+   └─ layout                                               # 문자열 리스트: 각 줄은 9칸이어야 함
 ```
 
 주의:
@@ -159,37 +135,37 @@ gui.yml
 
 ```text
 categories/<category>.yml
-├─ id                                                      # 카테고리 ID
-├─ name                                                    # 카테고리 표시 이름
-├─ reward                                                  # [선택] 문자열 또는 문자열 리스트, 카테고리 완료 보상 명령
+├─ id                                                      # 카테고리 ID 문자열: 내부 식별자
+├─ name                                                    # 문자열: 카테고리 표시 이름
+├─ reward                                                  # [선택] 문자열 또는 문자열 리스트: 카테고리 완료 보상 명령
 │                                                           지원 치환값: <player>
-├─ rewardButton                                            # 카테고리 완료 보상 버튼 메타데이터
-│  ├─ material                                             # Material 이름
-│  ├─ customModelData                                      # [선택] 정수(Integer), 버튼 CustomModelData
-│  ├─ name                                                 # 문자열, 버튼 표시 이름
-│  └─ lore                                                 # [선택] 문자열 리스트, 버튼 설명
-├─ claimedRewardButton                                     # 보상 수령 후 표시할 버튼 메타데이터
-│  ├─ material                                             # Material 이름
-│  ├─ customModelData                                      # [선택] 정수(Integer)
-│  ├─ name                                                 # 문자열
-│  └─ lore                                                 # [선택] 문자열 리스트
-│
+├─ rewardButton                                            # 보상 수령 전 버튼 메타데이터
+│  ├─ material                                             # Bukkit Material 이름: 보상 수령 전 버튼 재질
+│  ├─ customModelData                                      # [선택] 정수(Integer): 보상 수령 전 버튼 CustomModelData
+│  ├─ name                                                 # 문자열: 보상 수령 전 버튼 이름
+│  └─ lore                                                 # [선택] 문자열 리스트: 보상 수령 전 버튼 설명
+├─ claimedRewardButton                                     # 보상 수령 후 버튼 메타데이터
+│  ├─ material                                             # Bukkit Material 이름: 보상 수령 후 버튼 재질
+│  ├─ customModelData                                      # [선택] 정수(Integer): 보상 수령 후 버튼 CustomModelData
+│  ├─ name                                                 # 문자열: 보상 수령 후 버튼 이름
+│  └─ lore                                                 # [선택] 문자열 리스트: 보상 수령 후 버튼 설명
 └─ entries                                                 # 도감 엔트리 목록
    └─ - entry
-      ├─ id                                                # 엔트리 ID suffix
+      ├─ id                                                # 엔트리 ID suffix 문자열
       │                                                     최종 ID는 <category>.<id> 형태로 생성
-      ├─ amount                                            # 정수, 등록에 필요한 아이템 수량
-      ├─ name                                              # 문자열, 엔트리 표시 이름
-      ├─ description                                       # 문자열, 엔트리 설명
-      ├─ material                                          # Material 이름, 등록 판정과 기본 아이콘 기준
-      ├─ customModelData                                   # [선택] 정수(Integer), 등록 판정 시 함께 비교
-      └─ reward                                            # [선택] 문자열 또는 문자열 리스트, 등록 성공 보상 명령
+      ├─ amount                                            # 정수: 등록에 필요한 아이템 수량
+      ├─ name                                              # 문자열: 엔트리 표시 이름
+      ├─ description                                       # 문자열: 엔트리 설명
+      ├─ material                                          # Bukkit Material 이름: 등록 판정과 기본 아이콘 기준
+      ├─ customModelData                                   # [선택] 정수(Integer): 등록 판정 시 함께 비교
+      └─ reward                                            # [선택] 문자열 또는 문자열 리스트: 등록 성공 보상 명령
                                                             지원 치환값: <player>
 ```
 
 주의:
 
 - `entries.id`는 필수입니다.
+- `rewardButton`과 `claimedRewardButton`은 둘 다 필수입니다.
 - `entries.material`은 실제 등록 판정 기준입니다.
 - `reward`, `rewardButton.customModelData`, `entries.customModelData`는 모두 비워둘 수 있습니다.
 - `reward` 명령 템플릿에서는 `<player>` 치환값을 사용할 수 있습니다.
