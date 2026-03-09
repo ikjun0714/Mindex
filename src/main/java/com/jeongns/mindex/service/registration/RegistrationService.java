@@ -29,25 +29,25 @@ public class RegistrationService {
         this.rewardExecutor = rewardExecutor;
     }
 
-    public RegistrationStatus register(@NonNull Player player, @NonNull String entryId) {
+    public RegistrationResult register(@NonNull Player player, @NonNull String entryId) {
         Optional<MindexEntry> entryOptional = catalogManager.findEntry(entryId);
         if (entryOptional.isEmpty()) {
-            return RegistrationStatus.ENTRY_NOT_FOUND;
+            return RegistrationResult.entryNotFound(entryId);
         }
 
         MindexEntry entry = entryOptional.get();
         if (!canRegister(player, entry)) {
-            return RegistrationStatus.REQUIREMENT_NOT_MET;
+            return RegistrationResult.requirementNotMet(entry.getId(), entry.getName());
         }
 
         boolean unlocked = playerStateManager.unlock(player.getUniqueId(), entry.getId());
         if (!unlocked) {
-            return RegistrationStatus.ALREADY_REGISTERED;
+            return RegistrationResult.alreadyRegistered(entry.getId(), entry.getName());
         }
 
         consumeItems(player, entry);
         rewardExecutor.execute(player, entry.getReward());
-        return RegistrationStatus.SUCCESS;
+        return RegistrationResult.success(entry.getId(), entry.getName());
     }
 
     private boolean canRegister(@NonNull Player player, @NonNull MindexEntry entry) {

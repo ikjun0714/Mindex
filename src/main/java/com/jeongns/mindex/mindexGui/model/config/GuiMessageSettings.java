@@ -36,7 +36,7 @@ public final class GuiMessageSettings {
 
     public static GuiMessageSettings defaultValue() {
         return new GuiMessageSettings(
-                "<green>도감이 등록되었습니다: <white><entry_id>",
+                "<green>도감이 등록되었습니다: <white><entry_name>",
                 "<yellow>이미 등록된 도감입니다.",
                 "<red>등록 조건을 만족하지 못했습니다.",
                 "<green>카테고리 완료 보상을 수령했습니다.",

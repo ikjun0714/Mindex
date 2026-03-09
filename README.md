@@ -60,7 +60,7 @@ config.yml
 ├─ messages                                                # 플레이어 안내 메시지
 │  ├─ registration                                         # 도감 등록 관련 메시지
 │  │  ├─ success                                           # 문자열, 등록 성공 메시지
-│  │  │                                                     지원 치환값: <entry_id>
+│  │  │                                                     지원 치환값: <entry_name>
 │  │  ├─ already-registered                                # 문자열, 이미 등록된 엔트리일 때 표시
 │  │  └─ requirement-not-met                               # 문자열, 등록 조건 미충족 시 표시
 │  │

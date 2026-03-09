@@ -5,8 +5,8 @@ import com.jeongns.mindex.mindexGui.model.config.GuiMessageSettings;
 import com.jeongns.mindex.mindexGui.model.config.GuiSoundSetting;
 import com.jeongns.mindex.mindexGui.model.config.GuiSoundSettings;
 import com.jeongns.mindex.mindexGui.view.MindexCatalogGui;
+import com.jeongns.mindex.service.registration.RegistrationResult;
 import com.jeongns.mindex.service.registration.RegistrationService;
-import com.jeongns.mindex.service.registration.RegistrationStatus;
 import com.jeongns.mindex.service.reward.CategoryRewardService;
 import com.jeongns.mindex.service.reward.CategoryRewardStatus;
 import com.jeongns.mindex.util.MiniMessageUtil;
@@ -86,14 +86,14 @@ public final class MindexCatalogGuiInteractionHandler {
             return false;
         }
 
-        RegistrationStatus status = registrationService.register(player, entryId);
-        return switch (status) {
+        RegistrationResult result = registrationService.register(player, entryId);
+        return switch (result.status()) {
             case SUCCESS -> {
                 gui.refresh();
                 playSound(player, guiSoundSettings.getRegistrationSuccess());
                 player.sendMessage(MiniMessageUtil.parse(
                         guiMessageSettings.getRegistrationSuccess(),
-                        Placeholder.unparsed("entry_id", entryId)
+                        Placeholder.unparsed("entry_name", result.entryName())
                 ));
                 yield true;
             }
@@ -108,7 +108,7 @@ public final class MindexCatalogGuiInteractionHandler {
                 yield false;
             }
             case ENTRY_NOT_FOUND -> {
-                logger.severe("도감 엔트리를 찾을 수 없습니다: entryId=" + entryId);
+                logger.severe("도감 엔트리를 찾을 수 없습니다: entryId=" + result.entryId());
                 yield false;
             }
         };
