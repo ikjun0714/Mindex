@@ -56,7 +56,7 @@ public final class MindexCatalogGuiRenderer {
         Inventory inventory = Bukkit.createInventory(holder, view.getRows() * 9, resolvedTitle);
         MindexCategory currentCategory = findCategory(catalog, categoryId);
 
-        renderBaseLayout(guiModel, view, inventory, slotActions, currentCategory);
+        renderBaseLayout(guiModel, view, inventory, slotActions, currentCategory, playerState);
         renderEntries(entries, entrySlots, page, pageSize, inventory, slotActions, lockedEntryDisplay, playerState);
 
         return new CatalogGuiRenderResult(inventory, slotActions, page, maxPage);
@@ -67,7 +67,8 @@ public final class MindexCatalogGuiRenderer {
             @NonNull GuiView view,
             @NonNull Inventory inventory,
             @NonNull Map<Integer, GuiAction> slotActions,
-            MindexCategory currentCategory
+            MindexCategory currentCategory,
+            @NonNull PlayerMindexState playerState
     ) {
         for (int row = 0; row < view.getLayout().size(); row++) {
             String line = view.getLayout().get(row);
@@ -86,7 +87,7 @@ public final class MindexCatalogGuiRenderer {
                         continue;
                     }
                     registerDefaultAction(slot, role, slotActions);
-                    inventory.setItem(slot, createDefaultSymbolItem(defaultSymbol, currentCategory));
+                    inventory.setItem(slot, createDefaultSymbolItem(defaultSymbol, currentCategory, playerState));
                     continue;
                 }
 
@@ -214,15 +215,22 @@ public final class MindexCatalogGuiRenderer {
         }
     }
 
-    private ItemStack createDefaultSymbolItem(@NonNull DefaultSymbol defaultSymbol, MindexCategory currentCategory) {
+    private ItemStack createDefaultSymbolItem(
+            @NonNull DefaultSymbol defaultSymbol,
+            MindexCategory currentCategory,
+            @NonNull PlayerMindexState playerState
+    ) {
         if (defaultSymbol.getRole() == SymbolRole.CLAIM_CATEGORY_REWARD && currentCategory != null) {
-            CategoryRewardButton rewardButton = currentCategory.getRewardButton();
+            CategoryRewardButton displayButton = playerState.hasClaimedCategoryReward(currentCategory.getId())
+                    ? currentCategory.getClaimedRewardButton()
+                    : currentCategory.getRewardButton();
+
             return createItem(
-                    rewardButton.getMaterial(),
-                    rewardButton.getName(),
-                    rewardButton.getLore(),
+                    displayButton.getMaterial(),
+                    displayButton.getName(),
+                    displayButton.getLore(),
                     Material.CHEST,
-                    rewardButton.getCustomModelData(),
+                    displayButton.getCustomModelData(),
                     1
             );
         }

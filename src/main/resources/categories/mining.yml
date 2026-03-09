@@ -11,6 +11,12 @@ rewardButton:
     - "<gray>광물 카테고리를 모두 완성하면"
     - "<gray>이 버튼으로 보상을 수령합니다."
 
+claimedRewardButton:
+  material: CHEST
+  name: "<gray>광물 카테고리 보상 수령 완료"
+  lore:
+    - "<dark_gray>이미 광물 카테고리 보상을 수령했습니다."
+
 entries:
   - id: coal
     amount: 16

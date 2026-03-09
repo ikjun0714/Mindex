@@ -148,6 +148,11 @@ categories/<category>.yml
 │  ├─ customModelData                                      # [선택] 정수(Integer), 버튼 CustomModelData
 │  ├─ name                                                 # 문자열, 버튼 표시 이름
 │  └─ lore                                                 # [선택] 문자열 리스트, 버튼 설명
+├─ claimedRewardButton                                     # 보상 수령 후 표시할 버튼 메타데이터
+│  ├─ material                                             # Material 이름
+│  ├─ customModelData                                      # [선택] 정수(Integer)
+│  ├─ name                                                 # 문자열
+│  └─ lore                                                 # [선택] 문자열 리스트
 │
 └─ entries                                                 # 도감 엔트리 목록
    └─ - entry

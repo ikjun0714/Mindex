@@ -6,18 +6,11 @@ import com.jeongns.mindex.catalog.entity.MindexEntry;
 import com.jeongns.mindex.config.validation.ConfigValueValidator;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
-import org.bukkit.Material;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @AllArgsConstructor
@@ -56,14 +49,40 @@ public class CatalogConfigLoader {
         String categoryId = ConfigValueValidator.requireString(categoryConfig.getString("id"), categoryFile.getName() + ".id");
         String categoryName = ConfigValueValidator.requireString(categoryConfig.getString("name"), categoryFile.getName() + ".name");
         List<String> categoryReward = parseRewardCommands(categoryConfig.get("reward"), categoryFile.getName() + ".reward");
-        CategoryRewardButton rewardButton = loadRewardButton(categoryConfig, categoryFile.getName());
+        CategoryRewardButton rewardButton = loadRequiredRewardButton(categoryConfig, categoryFile.getName());
+        CategoryRewardButton claimedRewardButton = loadRequiredClaimedRewardButton(categoryConfig, categoryFile.getName());
         List<MindexEntry> entries = loadEntries(categoryId, categoryConfig);
 
-        return new MindexCategory(categoryId, categoryName, categoryReward, rewardButton, entries);
+        return new MindexCategory(categoryId, categoryName, categoryReward, rewardButton, claimedRewardButton, entries);
     }
 
-    private CategoryRewardButton loadRewardButton(@NonNull YamlConfiguration categoryConfig, @NonNull String fileName) {
-        String path = "rewardButton";
+    private CategoryRewardButton loadRequiredRewardButton(
+            @NonNull YamlConfiguration categoryConfig,
+            @NonNull String fileName
+    ) {
+        return loadRewardButtonAtPath(categoryConfig, fileName, "rewardButton", true);
+    }
+
+    private CategoryRewardButton loadRequiredClaimedRewardButton(
+            @NonNull YamlConfiguration categoryConfig,
+            @NonNull String fileName
+    ) {
+        return loadRewardButtonAtPath(categoryConfig, fileName, "claimedRewardButton", true);
+    }
+
+    private CategoryRewardButton loadRewardButtonAtPath(
+            @NonNull YamlConfiguration categoryConfig,
+            @NonNull String fileName,
+            @NonNull String path,
+            boolean required
+    ) {
+        if (!categoryConfig.contains(path)) {
+            if (required) {
+                throw new IllegalArgumentException("필수 설정이 누락되었습니다: " + fileName + "." + path);
+            }
+            return null;
+        }
+
         String materialName = ConfigValueValidator.requireString(
                 categoryConfig.getString(path + ".material"),
                 fileName + "." + path + ".material"
