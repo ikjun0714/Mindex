@@ -177,7 +177,6 @@ public class GuiConfigLoader {
             char symbol = parseSymbol(rawSymbol, symbolsNode.getPath());
             YamlNodeReader symbolNode = symbolsNode.child(rawSymbol);
 
-            String roleValue = ConfigValueValidator.requireString(symbolNode.getString("role"), symbolNode.pathForKey("role"));
             String categoryId = ConfigValueValidator.requireString(
                     symbolNode.getString("categoryId"),
                     symbolNode.pathForKey("categoryId")
@@ -187,7 +186,7 @@ public class GuiConfigLoader {
 
             symbols.put(symbol, new CategorySymbol(
                     symbol,
-                    SymbolRole.fromConfig(roleValue),
+                    SymbolRole.CATEGORY_BUTTON,
                     categoryId,
                     ConfigValueValidator.optionalMaterial(symbolNode.getString("material"), symbolNode.pathForKey("material")),
                     name,

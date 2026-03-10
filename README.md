@@ -104,7 +104,6 @@ gui.yml
 │     └─ lore                                              # [선택] 문자열 리스트: 버튼 설명
 ├─ categorySymbols                                         # 기본 화면 카테고리 버튼 정의
 │  └─ "<symbol>"                                           # 한 글자 심볼
-│     ├─ role                                              # CATEGORY_BUTTON: 기본 화면 카테고리 버튼 고정 역할
 │     ├─ categoryId                                        # 카테고리 ID 문자열: 클릭 시 열 카테고리
 │     ├─ material                                          # Bukkit Material 이름: 버튼 아이템 재질
 │     ├─ name                                              # [선택] 문자열: 버튼 표시 이름

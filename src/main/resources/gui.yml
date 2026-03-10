@@ -30,14 +30,12 @@ defaultSymbols:
 # defaultView 에서 사용되는 카테고리 버튼 심볼
 categorySymbols:
   "M":
-    role: CATEGORY_BUTTON
     categoryId: mining
     material: DIAMOND_PICKAXE
     name: "<aqua>광물 도감"
     lore:
       - "<gray>광물 카테고리 보기"
   "F":
-    role: CATEGORY_BUTTON
     categoryId: fishing
     material: FISHING_ROD
     name: "<dark_aqua>낚시 도감"
