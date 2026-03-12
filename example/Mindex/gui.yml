@@ -1,0 +1,65 @@
+defaultSymbols:
+  "#":
+    role: BORDER
+    material: GRAY_STAINED_GLASS_PANE
+    name: " "
+  "E":
+    role: ENTRY_SLOT
+  "<":
+    role: PREV_PAGE
+    material: AIR
+    name: "<yellow>이전 페이지"
+  ">":
+    role: NEXT_PAGE
+    material: AIR
+    name: "<yellow>다음 페이지"
+  "D":
+    role: OPEN_DEFAULT
+    material: COMPASS
+    name: "<yellow>카테고리 선택으로"
+  "R":
+    role: CLAIM_CATEGORY_REWARD
+
+# defaultView 에서 사용되는 카테고리 버튼 심볼
+categorySymbols:
+  "M":
+    categoryId: mining
+    material: AIR
+    name: "<aqua>광물 도감"
+    lore:
+      - "<gray>광물 카테고리 보기"
+  "F":
+    categoryId: fishing
+    material: AIR
+    name: "<dark_aqua>낚시 도감"
+    lore:
+      - "<gray>낚시 카테고리 보기"
+  "A":
+    categoryId: farming
+    material: AIR
+    name: "<green>농사 도감"
+    lore:
+      - "<gray>농사 카테고리 보기"
+
+entryView:
+  title: "<white>\uECCC\uEBBB"
+  rows: 6
+  # categories/*.yml 에 gui.layout 이 있으면 해당 레이아웃을 우선 사용
+  layout:
+    - "EEEEEEEAA"
+    - "EEEEEEEMM"
+    - "EEEEEEEFF"
+    - "EEEEEEE.."
+    - "EEEEEEE.."
+    - "..<R>...."
+
+defaultView:
+  title: "<white>\uECCC\uEAAA"
+  rows: 6
+  layout:
+    - "AAAMMMFFF"
+    - "AAAMMMFFF"
+    - "AAAMMMFFF"
+    - "........."
+    - "........."
+    - "........."

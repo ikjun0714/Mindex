@@ -1,0 +1,43 @@
+player-state-storage: FILE
+
+database:
+  jdbc-url: "jdbc:postgresql://localhost:5432/mindex"
+  username: "postgres"
+  password: "postgres"
+
+locked-entry-display:
+  mode: FIXED_ITEM_ENTRY_MATERIAL_STRING
+  material: PAPER
+  name: <gray>???
+  string-prefix: mindex_
+  custom-model-data:
+    floats: []
+    flags: []
+    strings: []
+sounds:
+  menu-select:
+    enabled: true
+    sound: minecraft:ui.button.click
+    volume: 1.0
+    pitch: 1.0
+  registration-success:
+    enabled: true
+    sound: minecraft:entity.player.levelup
+    volume: 1.0
+    pitch: 1.2
+  registration-fail:
+    enabled: true
+    sound: minecraft:entity.villager.no
+    volume: 1.0
+    pitch: 1.0
+messages:
+  registration:
+    success: "<green>도감이 등록되었습니다: <white><entry_name>"
+    already-registered: "<yellow>이미 등록된 도감입니다."
+    requirement-not-met: "<red>등록 조건을 만족하지 못했습니다."
+  category-reward:
+    success: "<green>카테고리 완료 보상을 수령했습니다."
+    not-complete: "<red>아직 이 카테고리를 모두 완성하지 못했습니다."
+    already-claimed: "<yellow>이미 이 카테고리 보상을 수령했습니다."
+
+auto-save-interval-minutes: 1
