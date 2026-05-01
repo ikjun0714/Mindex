@@ -3,7 +3,7 @@ version: '${version}'
 main: com.jeongns.mindex.MindexPlugin
 description: 마인크래프트 도감 플러그인
 author: Jeongns
-api-version: '1.21.11'
+api-version: '1.21'
 permissions:
   mindex.command.reload:
     description: Mindex 설정과 데이터를 다시 불러옵니다.
